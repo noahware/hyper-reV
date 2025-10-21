@@ -1,0 +1,50 @@
+[package]
+name = "memflow-hyper-rev"
+version = "0.1.0"
+edition = "2021"
+authors = ["Ricardo Carvalho <crvvdev@gmail.com>"]
+license = "MIT"
+description = "memflow connector for hyper-reV using hyperv-core library"
+repository = "https://github.com/your-repo/memflow-hyper-reV"
+readme = "README.md"
+keywords = [ "memflow", "introspection", "memory" ]
+categories = [ "api-bindings", "memory-management", "os" ]
+build = "build.rs"
+
+[lib]
+crate-type = ["lib", "cdylib"]
+
+[dependencies]
+memflow = { version = "0.2", features = ["plugins"] }
+memflow-win32 = { version = "0.2" }
+log = { version = "0.4", default-features = false }
+flexi_logger = "0.31.4"
+chrono = "0.4"
+anyhow = "1.0"
+
+[dev-dependencies]
+env_logger = "0.11"
+memflow-win32 = { version = "0.2" }
+
+[profile.release]
+lto = true
+
+[features]
+default = ["plugins"]
+plugins = ["memflow/plugins"]
+
+[[example]]
+name = "read_phys"
+path = "examples/read_phys.rs"
+
+[[example]]
+name = "ps_win32"
+path = "examples/ps_win32.rs"
+
+[[example]]
+name = "vmexit_perf"
+path = "examples/vmexit_perf.rs"
+
+#[[example]]
+#name = "ps_inventory"
+#path = "examples/ps_inventory.rs"

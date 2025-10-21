@@ -1,35 +1,34 @@
 #include "crt.h"
 #include <intrin.h>
 
-void crt::copy_memory(void* destination, const void* source, std::uint64_t size)
+void crt::copy_memory(void *destination, const void *source, std::uint64_t size)
 {
-	__movsb(static_cast<std::uint8_t*>(destination), static_cast<const std::uint8_t*>(source), size);
+    __movsb(static_cast<std::uint8_t *>(destination), static_cast<const std::uint8_t *>(source), size);
 }
 
-void crt::set_memory(void* destination, std::uint8_t value, std::uint64_t size)
+void crt::set_memory(void *destination, std::uint8_t value, std::uint64_t size)
 {
-	__stosb(static_cast<std::uint8_t*>(destination), value, size);
+    __stosb(static_cast<std::uint8_t *>(destination), value, size);
 }
 
 crt::mutex_t::mutex_t() : value(0)
 {
-	
 }
 
 void crt::mutex_t::lock()
 {
-	while (_InterlockedCompareExchange64(&this->value, 1, 0) != 0)
-	{
-		_mm_pause();
-	}
+    while (_InterlockedCompareExchange64(&this->value, 1, 0) != 0)
+    {
+        _mm_pause();
+    }
 }
 
 void crt::mutex_t::release()
 {
-	_InterlockedExchange64(&this->value, 0);
+    _InterlockedExchange64(&this->value, 0);
 }
 
-std::uint64_t* crt::bitmap_t::get_row(const std::uint64_t index) const
+std::uint64_t *crt::bitmap_t::get_row(const std::uint64_t index) const
 {
     if (this->value == nullptr)
     {
@@ -52,7 +51,7 @@ void crt::bitmap_t::set_all() const
     {
         for (std::uint64_t i = 0; i < this->value_count; i++)
         {
-            std::uint64_t& row_state = this->value[i];
+            std::uint64_t &row_state = this->value[i];
 
             row_state = UINT64_MAX;
         }
@@ -61,7 +60,7 @@ void crt::bitmap_t::set_all() const
 
 void crt::bitmap_t::set(const std::uint64_t index) const
 {
-    std::uint64_t* row = this->get_row(index);
+    std::uint64_t *row = this->get_row(index);
 
     if (row != nullptr)
     {
@@ -73,7 +72,7 @@ void crt::bitmap_t::set(const std::uint64_t index) const
 
 void crt::bitmap_t::clear(const std::uint64_t index) const
 {
-    std::uint64_t* row = this->get_row(index);
+    std::uint64_t *row = this->get_row(index);
 
     if (row != nullptr)
     {
@@ -85,7 +84,7 @@ void crt::bitmap_t::clear(const std::uint64_t index) const
 
 std::uint8_t crt::bitmap_t::is_set(const std::uint64_t index) const
 {
-    const std::uint64_t* row = this->get_row(index);
+    const std::uint64_t *row = this->get_row(index);
 
     if (row == nullptr)
     {
@@ -98,11 +97,11 @@ std::uint8_t crt::bitmap_t::is_set(const std::uint64_t index) const
     return (row_value >> bit) & 1;
 }
 
-void crt::bitmap_t::set_map_value(std::uint64_t* const value)
+void crt::bitmap_t::set_map_value(std::uint64_t *const value)
 {
     this->value = value;
 }
-	
+
 void crt::bitmap_t::set_map_value_count(const std::uint64_t value_count)
 {
     this->value_count = value_count;

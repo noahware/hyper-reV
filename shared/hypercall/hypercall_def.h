@@ -13,7 +13,8 @@ enum class hypercall_type_t : std::uint64_t
     hide_guest_physical_page,
     log_current_state,
     flush_logs,
-    get_heap_free_page_count
+    get_heap_free_page_count,
+    host_physical_memory_operation // NEW: direct host physical memory access
 };
 
 #pragma warning(push)

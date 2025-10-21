@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hyperv-attachment", "hyperv
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "usermode", "usermode\usermode.vcxproj", "{2EA786E4-1147-4804-AEAD-17975E24EC46}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hyperv-core", "hyperv-core\hyperv-core.vcxproj", "{72A6EF68-3B34-4D2C-9E93-BB737DCF6ACB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Release|x64 = Release|x64
@@ -20,8 +22,13 @@ Global
 		{13A77C37-9BB2-445D-8E81-9687E455C2E6}.Release|x64.Build.0 = Release|x64
 		{2EA786E4-1147-4804-AEAD-17975E24EC46}.Release|x64.ActiveCfg = Release|x64
 		{2EA786E4-1147-4804-AEAD-17975E24EC46}.Release|x64.Build.0 = Release|x64
+		{72A6EF68-3B34-4D2C-9E93-BB737DCF6ACB}.Release|x64.ActiveCfg = Release|x64
+		{72A6EF68-3B34-4D2C-9E93-BB737DCF6ACB}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0CE579B4-F0E1-4F00-82B8-423DB9B76507}
 	EndGlobalSection
 EndGlobal

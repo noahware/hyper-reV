@@ -5,5 +5,5 @@ union hypercall_info_t;
 
 namespace hypercall
 {
-	void process(hypercall_info_t hypercall_info, trap_frame_t* trap_frame);
+uint64_t process(hypercall_info_t hypercall_info, trap_frame_t *trap_frame);
 }

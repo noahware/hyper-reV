@@ -1,104 +1,123 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
+    <Filter Include="src">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    <Filter Include="src\slat">
+      <UniqueIdentifier>{d2c79d5b-f300-4bc8-9cc4-240436b6595d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="src\mm">
+      <UniqueIdentifier>{1bffd5f7-3fb7-4460-93f1-809c5cf07ba7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\hypercall">
+      <UniqueIdentifier>{fcd3c692-d93e-433d-a011-0d2a99982007}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\interrupts">
+      <UniqueIdentifier>{c4d42a20-cf61-4047-9861-bd6017221af8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\crt">
+      <UniqueIdentifier>{429df44a-e56c-4c05-86d3-2cabc4ed9b9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\apic">
+      <UniqueIdentifier>{ffb3470d-82b9-4ee2-8cc8-66777129e0a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\logs">
+      <UniqueIdentifier>{4da0aa3f-1a02-49c4-9b08-f85a917668d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\structs">
+      <UniqueIdentifier>{f64d8eb7-6a49-4c08-baf1-2e8cdd0dc32b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\arch">
+      <UniqueIdentifier>{f827f93c-3d07-4a3d-8b82-fb05f65ea0ba}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\arch\arch.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\slat\slat.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\memory_manager\memory_manager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\crt\crt.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\hypercall\hypercall.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>src\slat</Filter>
     </ClCompile>
     <ClCompile Include="src\memory_manager\heap_manager.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>src\mm</Filter>
     </ClCompile>
-    <ClCompile Include="src\logs\logs.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\memory_manager\memory_manager.cpp">
+      <Filter>src\mm</Filter>
     </ClCompile>
-    <ClCompile Include="src\apic\apic.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\hypercall\hypercall.cpp">
+      <Filter>src\hypercall</Filter>
     </ClCompile>
     <ClCompile Include="src\interrupts\interrupts.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>src\interrupts</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crt\crt.cpp">
+      <Filter>src\crt</Filter>
+    </ClCompile>
+    <ClCompile Include="src\arch\arch.cpp">
+      <Filter>src\arch</Filter>
+    </ClCompile>
+    <ClCompile Include="src\apic\apic.cpp">
+      <Filter>src\apic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\logs\logs.cpp">
+      <Filter>src\logs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ext\ia32-doc\ia32.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\arch\arch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\slat\slat.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\structures\virtual_address.h">
-      <Filter>Header Files</Filter>
+      <Filter>src\slat</Filter>
     </ClInclude>
     <ClInclude Include="src\memory_manager\memory_manager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\crt\crt.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\hypercall\hypercall.h">
-      <Filter>Header Files</Filter>
+      <Filter>src\mm</Filter>
     </ClInclude>
     <ClInclude Include="src\memory_manager\heap_manager.h">
-      <Filter>Header Files</Filter>
+      <Filter>src\mm</Filter>
     </ClInclude>
-    <ClInclude Include="src\logs\logs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\arch_config.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\apic\apic.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\apic\apic_def.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\apic\apic_intrin.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="src\hypercall\hypercall.h">
+      <Filter>src\hypercall</Filter>
     </ClInclude>
     <ClInclude Include="src\interrupts\interrupts.h">
-      <Filter>Header Files</Filter>
+      <Filter>src\interrupts</Filter>
+    </ClInclude>
+    <ClInclude Include="src\crt\crt.h">
+      <Filter>src\crt</Filter>
+    </ClInclude>
+    <ClInclude Include="src\apic\apic.h">
+      <Filter>src\apic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\apic\apic_def.h">
+      <Filter>src\apic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\apic\apic_intrin.h">
+      <Filter>src\apic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\arch\arch.h">
+      <Filter>src\arch</Filter>
+    </ClInclude>
+    <ClInclude Include="src\logs\logs.h">
+      <Filter>src\logs</Filter>
     </ClInclude>
     <ClInclude Include="src\arch\amd_def.h">
-      <Filter>Header Files</Filter>
+      <Filter>src\structs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\arch_config.h">
+      <Filter>src\arch</Filter>
+    </ClInclude>
+    <ClInclude Include="ext\ia32-doc\ia32.hpp">
+      <Filter>src\structs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\structures\virtual_address.h">
+      <Filter>src\structs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="src\slat\slat_intel.asm">
-      <Filter>Source Files</Filter>
+      <Filter>src</Filter>
     </MASM>
     <MASM Include="src\interrupts\interrupt_entry.asm">
-      <Filter>Source Files</Filter>
+      <Filter>src\interrupts</Filter>
     </MASM>
   </ItemGroup>
 </Project>
