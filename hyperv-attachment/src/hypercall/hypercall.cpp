@@ -47,36 +47,39 @@ std::uint64_t operate_on_guest_physical_memory(trap_frame_t *trap_frame, memory_
     std::uint64_t size_left_to_copy = trap_frame->r9;
 
     // Fix: use size_left_to_copy as the size parameter
-    if (!is_usermode_ptr(reinterpret_cast<void *>(guest_buffer_virtual_address), size_left_to_copy) ||
+    /*if (!is_usermode_ptr(reinterpret_cast<void *>(guest_buffer_virtual_address), size_left_to_copy) ||
         !is_valid_physical(guest_physical_address, size_left_to_copy) || size_left_to_copy == 0)
     {
         return 0;
-    }
+    }*/
 
     std::uint64_t bytes_copied = 0;
 
     while (size_left_to_copy != 0)
     {
-        std::uint64_t size_left_of_destination_slat_page = UINT64_MAX;
-        std::uint64_t size_left_of_source_slat_page = UINT64_MAX;
+        translation_result_t host_dst_result, host_src_result, guest_result;
 
         std::uint64_t guest_buffer_physical_address = memory_manager::translate_guest_virtual_address(
-            guest_cr3, slat_cr3, virtual_address_t{.value = guest_buffer_virtual_address + bytes_copied});
+            guest_cr3, slat_cr3, virtual_address_t{.value = guest_buffer_virtual_address + bytes_copied}, guest_result);
         if (guest_buffer_physical_address == NULL)
         {
-            break;
+            return make_translation_error(guest_result);
         }
 
-        std::uint64_t host_destination = memory_manager::map_guest_physical(slat_cr3, guest_buffer_physical_address,
-                                                                            &size_left_of_destination_slat_page);
-        std::uint64_t host_source = memory_manager::map_guest_physical(slat_cr3, guest_physical_address + bytes_copied,
-                                                                       &size_left_of_source_slat_page);
-
-        // Fix: On any mapping failure, break and return bytes_copied
-        if (host_destination == NULL || host_source == NULL || size_left_of_destination_slat_page == UINT64_MAX ||
-            size_left_of_source_slat_page == UINT64_MAX)
+        std::uint64_t size_left_of_destination_slat_page = UINT64_MAX;
+        std::uint64_t host_destination = memory_manager::map_guest_physical(
+            slat_cr3, guest_buffer_physical_address, host_dst_result, &size_left_of_destination_slat_page);
+        if (host_destination == NULL || size_left_of_destination_slat_page == UINT64_MAX)
         {
-            break;
+            return make_translation_error(guest_result);
+        }
+
+        std::uint64_t size_left_of_source_slat_page = UINT64_MAX;
+        std::uint64_t host_source = memory_manager::map_guest_physical(slat_cr3, guest_physical_address + bytes_copied,
+                                                                       host_src_result, &size_left_of_source_slat_page);
+        if (host_source == NULL || size_left_of_source_slat_page == UINT64_MAX)
+        {
+            return make_translation_error(host_src_result);
         }
 
         if (operation == memory_operation_t::write_operation)
@@ -125,28 +128,40 @@ std::uint64_t operate_on_guest_virtual_memory(trap_frame_t *trap_frame, memory_o
 
         std::uint64_t size_left_of_source_virtual_page = UINT64_MAX;
         std::uint64_t size_left_of_source_slat_page = UINT64_MAX;
+        translation_result_t src_result, dst_result;
 
         std::uint64_t guest_source_physical_address = memory_manager::translate_guest_virtual_address(
             guest_source_cr3, slat_cr3, virtual_address_t{.value = guest_source_virtual_address + bytes_copied},
-            &size_left_of_source_virtual_page);
+            src_result, &size_left_of_source_virtual_page);
         std::uint64_t guest_destination_physical_address = memory_manager::translate_guest_virtual_address(
             guest_destination_cr3, slat_cr3,
-            virtual_address_t{.value = guest_destination_virtual_address + bytes_copied},
+            virtual_address_t{.value = guest_destination_virtual_address + bytes_copied}, dst_result,
             &size_left_of_destination_virtual_page);
 
-        if (size_left_of_destination_virtual_page == UINT64_MAX || size_left_of_source_virtual_page == UINT64_MAX)
+        if (guest_destination_physical_address == NULL || size_left_of_destination_virtual_page == UINT64_MAX)
         {
-            break;
+            return make_translation_error(dst_result);
         }
 
-        std::uint64_t host_destination = memory_manager::map_guest_physical(
-            slat_cr3, guest_destination_physical_address, &size_left_of_destination_slat_page);
-        std::uint64_t host_source =
-            memory_manager::map_guest_physical(slat_cr3, guest_source_physical_address, &size_left_of_source_slat_page);
-
-        if (size_left_of_destination_slat_page == UINT64_MAX || size_left_of_source_slat_page == UINT64_MAX)
+        if (guest_source_physical_address == NULL || size_left_of_source_virtual_page == UINT64_MAX)
         {
-            break;
+            return make_translation_error(src_result);
+        }
+
+        translation_result_t host_dst_result, host_src_result;
+        std::uint64_t host_destination = memory_manager::map_guest_physical(
+            slat_cr3, guest_destination_physical_address, host_dst_result, &size_left_of_destination_slat_page);
+        std::uint64_t host_source = memory_manager::map_guest_physical(slat_cr3, guest_source_physical_address,
+                                                                       host_src_result, &size_left_of_source_slat_page);
+
+        if (host_destination == NULL || size_left_of_destination_slat_page == UINT64_MAX)
+        {
+            return make_translation_error(host_dst_result);
+        }
+
+        if (host_source == NULL || size_left_of_source_slat_page == UINT64_MAX)
+        {
+            return make_translation_error(host_src_result);
         }
 
         if (operation == memory_operation_t::write_operation)
@@ -193,28 +208,29 @@ std::uint8_t copy_stack_data_from_log_exit(std::uint64_t *stack_data, std::uint6
 
     while (bytes_remaining != 0)
     {
+        translation_result_t src_result, dst_result;
         std::uint64_t virtual_size_left = 0;
 
         std::uint64_t rsp_guest_physical_address = memory_manager::translate_guest_virtual_address(
-            guest_cr3, slat_cr3, virtual_address_t{.value = rsp + bytes_read}, &virtual_size_left);
+            guest_cr3, slat_cr3, virtual_address_t{.value = rsp + bytes_read}, src_result, &virtual_size_left);
 
-        if (rsp_guest_physical_address == 0)
+        if (rsp_guest_physical_address == NULL || virtual_size_left == UINT64_MAX)
         {
-            return 0;
+            break;
         }
 
         std::uint64_t physical_size_left = 0;
 
         // rcx has just been pushed onto stack
         std::uint64_t *rsp_mapped = reinterpret_cast<std::uint64_t *>(
-            memory_manager::map_guest_physical(slat_cr3, rsp_guest_physical_address, &physical_size_left));
+            memory_manager::map_guest_physical(slat_cr3, rsp_guest_physical_address, dst_result, &physical_size_left));
 
         std::uint64_t size_left_of_page = crt::min(physical_size_left, virtual_size_left);
         std::uint64_t size_to_read = crt::min(bytes_remaining, size_left_of_page);
 
         if (size_to_read == 0)
         {
-            return 0;
+            break;
         }
 
         crt::copy_memory(reinterpret_cast<std::uint8_t *>(stack_data) + bytes_read,
@@ -273,13 +289,6 @@ std::uint64_t flush_logs(trap_frame_t *trap_frame)
 
 std::uint64_t operate_on_host_physical_memory(trap_frame_t *trap_frame, memory_operation_t operation)
 {
-    // Parameter checks
-    if (!is_usermode_ptr(reinterpret_cast<void *>(trap_frame->r8), trap_frame->r9) ||
-        !is_valid_physical(trap_frame->rdx, trap_frame->r9) || trap_frame->r9 == 0)
-    {
-        return 0;
-    }
-
     cr3 guest_cr3 = arch::get_guest_cr3();
     cr3 slat_cr3 = slat::get_cr3();
 
@@ -292,23 +301,33 @@ std::uint64_t operate_on_host_physical_memory(trap_frame_t *trap_frame, memory_o
 
     while (size_left_to_copy != 0)
     {
+        translation_result_t result;
+
         std::uint64_t size_left_of_destination_slat_page = UINT64_MAX;
         std::uint64_t size_left_of_source_slat_page = UINT64_MAX;
 
         std::uint64_t guest_buffer_physical_address = memory_manager::translate_guest_virtual_address(
-            guest_cr3, slat_cr3, virtual_address_t{.value = guest_buffer_virtual_address + bytes_copied});
+            guest_cr3, slat_cr3, virtual_address_t{.value = guest_buffer_virtual_address + bytes_copied}, result);
+        if (guest_buffer_physical_address == NULL)
+        {
+            return make_translation_error(result);
+        }
 
-        std::uint64_t host_destination = memory_manager::map_guest_physical(slat_cr3, guest_buffer_physical_address,
-                                                                            &size_left_of_destination_slat_page);
+        std::uint64_t host_destination = memory_manager::map_guest_physical(
+            slat_cr3, guest_buffer_physical_address, result, &size_left_of_destination_slat_page);
+        if (host_destination == NULL || size_left_of_destination_slat_page == UINT64_MAX)
+        {
+            return make_translation_error(result);
+        }
 
         // source is host physical; map to identity region and compute remaining in that host page
         std::uint64_t host_source = memory_manager::map_host_physical(host_physical_address + bytes_copied);
         std::uint64_t page_offset = (host_physical_address + bytes_copied) & 0xFFF;
         size_left_of_source_slat_page = 0x1000 - page_offset;
 
-        if (size_left_of_destination_slat_page == UINT64_MAX || size_left_of_source_slat_page == UINT64_MAX)
+        if (size_left_of_source_slat_page == UINT64_MAX)
         {
-            return UINT64_MAX;
+            break;
         }
 
         if (operation == memory_operation_t::write_operation)
@@ -358,12 +377,14 @@ uint64_t hypercall::process(hypercall_info_t hypercall_info, trap_frame_t *trap_
         return operate_on_guest_virtual_memory(trap_frame, memory_operation, address_of_page_directory);
     }
     case hypercall_type_t::translate_guest_virtual_address: {
+        translation_result_t result = {};
         virtual_address_t guest_virtual_address = virtual_address_t{.value = trap_frame->rdx};
 
         cr3 target_guest_cr3 = {.flags = trap_frame->r8};
         cr3 slat_cr3 = slat::get_cr3();
 
-        return memory_manager::translate_guest_virtual_address(target_guest_cr3, slat_cr3, guest_virtual_address);
+        return memory_manager::translate_guest_virtual_address(target_guest_cr3, slat_cr3, guest_virtual_address,
+                                                               result);
     }
     case hypercall_type_t::read_guest_cr3: {
         cr3 guest_cr3 = arch::get_guest_cr3();

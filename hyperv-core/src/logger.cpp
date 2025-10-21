@@ -3,6 +3,8 @@
 #include <ctime>
 #include <mutex>
 
+//#define DISABLE_LOGGING 1
+
 namespace hyperv::logger
 {
 namespace
@@ -42,6 +44,9 @@ void get_timestamp(char *buffer, size_t buffer_size)
 
 void log_with_level(log_level level, const char *format, va_list args)
 {
+#if defined(DISABLE_LOGGING)
+    return;
+#else
     if (level < min_log_level)
     {
         return;
@@ -56,6 +61,7 @@ void log_with_level(log_level level, const char *format, va_list args)
     vsnprintf_s(message, sizeof(message), _TRUNCATE, format, args);
 
     printf("[%s] [%s] %s\n", timestamp, level_to_string(level), message);
+#endif
 }
 } // namespace
 

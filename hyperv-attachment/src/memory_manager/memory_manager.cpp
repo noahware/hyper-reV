@@ -16,44 +16,49 @@ std::uint64_t memory_manager::unmap_host_physical(std::uint64_t host_mapped_addr
 }
 
 std::uint64_t memory_manager::map_guest_physical(cr3 slat_cr3, std::uint64_t guest_physical_address,
-                                                 std::uint64_t *size_left_of_ept_page)
+                                                 translation_result_t &result, std::uint64_t *size_left_of_ept_page)
 {
     const std::uint64_t host_physical_address = slat::translate_guest_physical_address(
-        slat_cr3, virtual_address_t{.value = guest_physical_address}, size_left_of_ept_page);
+        slat_cr3, virtual_address_t{.value = guest_physical_address}, result, size_left_of_ept_page);
     if (host_physical_address == NULL)
     {
-        return 0;
+        return NULL;
     }
     return host_physical_memory_access_base + host_physical_address;
 }
 
 std::uint64_t memory_manager::translate_guest_virtual_address(cr3 guest_cr3, cr3 slat_cr3,
                                                               virtual_address_t guest_virtual_address,
+                                                              translation_result_t &result,
                                                               std::uint64_t *size_left_of_page)
 {
     pml4e_64 *pml4 =
-        reinterpret_cast<pml4e_64 *>(map_guest_physical(slat_cr3, guest_cr3.address_of_page_directory << 12));
+        reinterpret_cast<pml4e_64 *>(map_guest_physical(slat_cr3, guest_cr3.address_of_page_directory << 12, result));
     if (!pml4)
     {
-        return 0;
+        result = translation_result_t::pml4e_not_present;
+        return NULL;
     }
 
     pml4e_64 pml4e = pml4[guest_virtual_address.pml4_idx];
     if (pml4e.present == 0 || pml4e.page_frame_number == 0)
     {
-        return 0;
+        result = translation_result_t::pml4e_not_present;
+        return NULL;
     }
 
-    pdpte_64 *pdpt = reinterpret_cast<pdpte_64 *>(map_guest_physical(slat_cr3, pml4e.page_frame_number << 12));
+    pdpte_64 *pdpt = reinterpret_cast<pdpte_64 *>(map_guest_physical(slat_cr3, pml4e.page_frame_number << 12, result));
     if (!pdpt)
     {
-        return 0;
+        result = translation_result_t::pdpte_not_present;
+        return NULL;
     }
 
     pdpte_64 pdpte = pdpt[guest_virtual_address.pdpt_idx];
     if (pdpte.present == 0 || pdpte.page_frame_number == 0)
     {
-        return 0;
+        result = translation_result_t::pdpte_not_present;
+        return NULL;
     }
 
     // 1GB pages
@@ -70,16 +75,18 @@ std::uint64_t memory_manager::translate_guest_virtual_address(cr3 guest_cr3, cr3
         return (large_pdpte.page_frame_number << 30) + page_offset;
     }
 
-    pde_64 *pd = reinterpret_cast<pde_64 *>(map_guest_physical(slat_cr3, pdpte.page_frame_number << 12));
+    pde_64 *pd = reinterpret_cast<pde_64 *>(map_guest_physical(slat_cr3, pdpte.page_frame_number << 12, result));
     if (!pd)
     {
-        return 0;
+        result = translation_result_t::pde_not_present;
+        return NULL;
     }
 
     pde_64 pde = pd[guest_virtual_address.pd_idx];
     if (pde.present == 0 || pde.page_frame_number == 0)
     {
-        return 0;
+        result = translation_result_t::pde_not_present;
+        return NULL;
     }
 
     // 2MB pages
@@ -96,16 +103,18 @@ std::uint64_t memory_manager::translate_guest_virtual_address(cr3 guest_cr3, cr3
         return (large_pde.page_frame_number << 21) + page_offset;
     }
 
-    pte_64 *pt = reinterpret_cast<pte_64 *>(map_guest_physical(slat_cr3, pde.page_frame_number << 12));
+    pte_64 *pt = reinterpret_cast<pte_64 *>(map_guest_physical(slat_cr3, pde.page_frame_number << 12, result));
     if (!pt)
     {
-        return 0;
+        result = translation_result_t::pte_not_present;
+        return NULL;
     }
 
     pte_64 pte = pt[guest_virtual_address.pt_idx];
     if (pte.present == 0 || pte.page_frame_number == 0)
     {
-        return 0;
+        result = translation_result_t::pte_not_present;
+        return NULL;
     }
 
     // 4KB pages
@@ -116,10 +125,12 @@ std::uint64_t memory_manager::translate_guest_virtual_address(cr3 guest_cr3, cr3
         *size_left_of_page = (1ull << 12) - page_offset;
     }
 
+    result = translation_result_t::success;
     return (pte.page_frame_number << 12) + page_offset;
 }
 
 std::uint64_t memory_manager::translate_host_virtual_address(cr3 host_cr3, virtual_address_t host_virtual_address,
+                                                             translation_result_t &result,
                                                              std::uint64_t *size_left_of_page)
 {
 
@@ -129,7 +140,8 @@ std::uint64_t memory_manager::translate_host_virtual_address(cr3 host_cr3, virtu
 
     if (pml4e.present == 0 || pml4e.page_frame_number == 0)
     {
-        return 0;
+        result = translation_result_t::pml4e_not_present;
+        return NULL;
     }
 
     auto physPdpt = (pml4e.page_frame_number << 12);
@@ -138,7 +150,8 @@ std::uint64_t memory_manager::translate_host_virtual_address(cr3 host_cr3, virtu
 
     if (pdpte.present == 0 || pdpte.page_frame_number == 0)
     {
-        return 0;
+        result = translation_result_t::pdpte_not_present;
+        return NULL;
     }
 
     if (pdpte.large_page == 1)
@@ -160,7 +173,8 @@ std::uint64_t memory_manager::translate_host_virtual_address(cr3 host_cr3, virtu
 
     if (pde.present == 0 || pde.page_frame_number == 0)
     {
-        return 0;
+        result = translation_result_t::pde_not_present;
+        return NULL;
     }
 
     if (pde.large_page == 1)
@@ -182,7 +196,8 @@ std::uint64_t memory_manager::translate_host_virtual_address(cr3 host_cr3, virtu
 
     if (pte.present == 0 || pte.page_frame_number == 0)
     {
-        return 0;
+        result = translation_result_t::pte_not_present;
+        return NULL;
     }
 
     const std::uint64_t page_offset = host_virtual_address.offset_4kb;
@@ -192,6 +207,7 @@ std::uint64_t memory_manager::translate_host_virtual_address(cr3 host_cr3, virtu
         *size_left_of_page = (1ull << 12) - page_offset;
     }
 
+    result = translation_result_t::success;
     return (pte.page_frame_number << 12) + page_offset;
 }
 
@@ -200,29 +216,32 @@ std::uint64_t memory_manager::operate_on_guest_virtual_memory(cr3 slat_cr3, void
                                                               std::uint64_t total_size, memory_operation_t operation)
 {
     std::uint64_t size_left_to_read = total_size;
-
     std::uint64_t bytes_read = 0;
 
     while (size_left_to_read != 0)
     {
         std::uint64_t size_left_of_virtual_page = 0;
         std::uint64_t size_left_of_slat_page = 0;
+        translation_result_t result;
 
         std::uint64_t guest_physical_address = translate_guest_virtual_address(
-            guest_cr3, slat_cr3, virtual_address_t{.value = guest_virtual_address + bytes_read},
+            guest_cr3, slat_cr3, virtual_address_t{.value = guest_virtual_address + bytes_read}, result,
             &size_left_of_virtual_page);
-
-        if (guest_physical_address == 0)
+        if (guest_physical_address == NULL || size_left_of_virtual_page == UINT64_MAX)
         {
-            break;
+            return make_translation_error(result);
         }
 
-        void *guest_physical_mapped =
-            reinterpret_cast<void *>(map_guest_physical(slat_cr3, guest_physical_address, &size_left_of_slat_page));
+        void *guest_physical_mapped = reinterpret_cast<void *>(
+            map_guest_physical(slat_cr3, guest_physical_address, result, &size_left_of_slat_page));
         std::uint8_t *current_host_buffer = static_cast<std::uint8_t *>(host_buffer) + bytes_read;
 
-        std::uint64_t size_left_of_pages = crt::min(size_left_of_virtual_page, size_left_of_slat_page);
+        if (!guest_physical_mapped || size_left_of_slat_page == UINT64_MAX)
+        {
+            return make_translation_error(result);
+        }
 
+        std::uint64_t size_left_of_pages = crt::min(size_left_of_virtual_page, size_left_of_slat_page);
         std::uint64_t copy_size = crt::min(size_left_to_read, size_left_of_pages);
 
         if (operation == memory_operation_t::write_operation)

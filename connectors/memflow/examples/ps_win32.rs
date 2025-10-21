@@ -16,8 +16,6 @@ https://docs.rs/memflow/0.1.5/memflow/connector/inventory/index.html
 use log::info;
 use flexi_logger::{Cleanup, Criterion, Duplicate, FileSpec, Logger, Naming};
 
-
-
 fn init_logger() {
     // Write logs to stdout and rotate files under ./logs
     Logger::try_with_env_or_str("info")

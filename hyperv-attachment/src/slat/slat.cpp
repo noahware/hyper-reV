@@ -543,6 +543,7 @@ std::uint8_t slat::try_hide_heap_pages(std::uint64_t heap_physical_address, std:
 }
 
 std::uint64_t slat::translate_guest_physical_address(cr3 slat_cr3, virtual_address_t guest_physical_address,
+                                                     translation_result_t &result,
                                                      std::uint64_t *size_left_of_slat_page)
 {
 #ifdef _INTELMACHINE
@@ -561,7 +562,8 @@ std::uint64_t slat::translate_guest_physical_address(cr3 slat_cr3, virtual_addre
     }
 #endif
 
-    return memory_manager::translate_host_virtual_address(slat_cr3, guest_physical_address, size_left_of_slat_page);
+    return memory_manager::translate_host_virtual_address(slat_cr3, guest_physical_address, result,
+                                                          size_left_of_slat_page);
 }
 
 #ifndef _INTELMACHINE
@@ -695,14 +697,14 @@ std::uint64_t slat::add_slat_code_hook(cr3 slat_cr3, virtual_address_t target_gu
         }
     }
 
+    translation_result_t result;
     std::uint64_t shadow_page_host_physical_address =
-        translate_guest_physical_address(slat_cr3, shadow_page_guest_physical_address);
+        translate_guest_physical_address(slat_cr3, shadow_page_guest_physical_address, result);
 
     if (shadow_page_host_physical_address == 0)
     {
         hook_mutex.release();
-
-        return 0;
+        return make_translation_error(result);
     }
 
     hook_entry_t *hook_entry = available_hook_list_head;

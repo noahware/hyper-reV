@@ -4,11 +4,23 @@ for process structures and enumerate them without OS layer assistance.
 */
 
 use log::info;
+use flexi_logger::{Cleanup, Criterion, Duplicate, FileSpec, Logger, Naming};
 
 use memflow::prelude::v1::*;
 
+fn init_logger() {
+    // Write logs to stdout and rotate files under ./logs
+    Logger::try_with_env_or_str("info")
+        .unwrap()
+        .duplicate_to_stdout(Duplicate::All)
+        .log_to_file(FileSpec::default().directory("logs"))
+        .rotate(Criterion::Size(10_000_000), Naming::Timestamps, Cleanup::KeepLogFiles(7))
+        .start()
+        .unwrap();
+}
+
 fn main() {
-    env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
+    init_logger();
 
     // Create hyperv connector
     let connector_args = ConnectorArgs::default();

@@ -19,6 +19,8 @@ EFI_STATUS
 EFIAPI
 UefiMain(IN EFI_HANDLE image_handle, IN EFI_SYSTEM_TABLE *system_table)
 {
+    Print(L"hyper-reV: initializing..\n");
+
     EFI_HANDLE device_handle = NULL;
     EFI_STATUS status = bootmgfw_restore_original_file(&device_handle);
 
@@ -33,5 +35,6 @@ UefiMain(IN EFI_HANDLE image_handle, IN EFI_SYSTEM_TABLE *system_table)
         return status;
     }
 
+    Print(L"hyper-reV: successfully set up Hyper-V attachment.\n");
     return bootmgfw_run_original_image(image_handle, device_handle);
 }

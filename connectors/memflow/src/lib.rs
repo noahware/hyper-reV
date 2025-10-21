@@ -2,6 +2,9 @@ use anyhow::*;
 use log::info;
 use std::cell::{RefCell, RefMut};
 use std::ffi::c_void;
+use winapi::shared::minwindef::FALSE;
+use winapi::um::memoryapi::{VirtualAlloc, VirtualFree, VirtualLock, VirtualUnlock};
+use winapi::um::winnt::{MEM_COMMIT, MEM_RESERVE, PAGE_READWRITE};
 
 use memflow::cglue;
 use memflow::error::{Error, ErrorKind, ErrorOrigin};
@@ -34,19 +37,25 @@ extern "C" {
 
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub enum HypervError {
-    ReadFailed,
-    WriteFailed,
-    InvalidAddress,
+    InitializationFailed,
+    ReadFailed {
+        address: u64,
+        len: usize,
+    },
+    WriteFailed {
+        address: u64,
+        len: usize,
+    },
     PartialCopy {
         address: u64,
         len: usize,
         read: usize,
     },
-    InitializationFailed,
     UntranslatablePage {
         address: u64,
         len: usize,
     },
+    InvalidAddress,
 }
 
 cglue_impl_group!(HypervConnector, ConnectorInstance<'a>, {});
@@ -102,6 +111,78 @@ impl Default for HypervKernelHandle {
 /// Process handle for attached processes
 pub struct HypervProcess(RefCell<MemflowProcess>);
 
+/// Page-aligned and locked buffer for physical memory access
+/// Uses Windows VirtualAlloc and VirtualLock for guaranteed physical memory
+pub struct AlignedBuffer {
+    ptr: *mut c_void,
+    len: usize,
+}
+
+impl AlignedBuffer {
+    pub fn new(size: usize) -> Option<Self> {
+        unsafe {
+            let ptr = VirtualAlloc(
+                std::ptr::null_mut(),
+                size,
+                MEM_RESERVE | MEM_COMMIT,
+                PAGE_READWRITE,
+            );
+
+            if ptr.is_null() {
+                log::error!("VirtualAlloc failed for size {:#X}", size);
+                return None;
+            }
+
+            // Lock the memory to prevent paging
+            if VirtualLock(ptr, size) == FALSE {
+                log::error!("VirtualLock failed for buffer at {:p}", ptr);
+                VirtualFree(ptr, 0, winapi::um::winnt::MEM_RELEASE);
+                return None;
+            }
+
+            Some(AlignedBuffer { ptr, len: size })
+        }
+    }
+
+    pub fn as_bytes_mut(&mut self) -> &mut [u8] {
+        unsafe { std::slice::from_raw_parts_mut(self.ptr as *mut u8, self.len) }
+    }
+
+    pub fn as_bytes(&self) -> &[u8] {
+        unsafe { std::slice::from_raw_parts(self.ptr as *const u8, self.len) }
+    }
+
+    pub fn as_ptr(&self) -> *const c_void {
+        self.ptr
+    }
+
+    pub fn as_mut_ptr(&mut self) -> *mut c_void {
+        self.ptr
+    }
+
+    pub fn len(&self) -> usize {
+        self.len
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.len == 0
+    }
+}
+
+impl Drop for AlignedBuffer {
+    fn drop(&mut self) {
+        unsafe {
+            if VirtualUnlock(self.ptr, self.len) == FALSE {
+                log::warn!("VirtualUnlock failed for buffer at {:p}", self.ptr);
+            }
+
+            if VirtualFree(self.ptr, 0, winapi::um::winnt::MEM_RELEASE) == FALSE {
+                log::error!("VirtualFree failed for buffer at {:p}", self.ptr);
+            }
+        }
+    }
+}
+
 impl HypervProcess {
     pub fn new(proc: MemflowProcess) -> Self {
         Self(RefCell::new(proc))
@@ -135,9 +216,14 @@ impl HypervConnector {
         address: u64,
         buf: &mut [u8],
     ) -> core::result::Result<(), HypervError> {
+        // Allocate page-aligned and locked buffer for the read
+        let mut aligned_buf = AlignedBuffer::new(buf.len()).ok_or(HypervError::ReadFailed {
+            address,
+            len: buf.len(),
+        })?;
+
         let bytes_read =
-            hyperv_memory_read_physical(buf.as_mut_ptr() as *mut c_void, address, buf.len() as u64)
-                as u64;
+            hyperv_memory_read_physical(aligned_buf.as_mut_ptr(), address, buf.len() as u64) as u64;
 
         if bytes_read == u64::MAX {
             return Err(HypervError::UntranslatablePage {
@@ -147,13 +233,10 @@ impl HypervConnector {
         }
 
         if bytes_read == 0 {
-            log::error!(
-                "Failed to read physical memory at address {:#X}, buffer {:p}: error code {}",
+            return Err(HypervError::ReadFailed {
                 address,
-                buf.as_ptr(),
-                hyperv_get_last_error()
-            );
-            return Err(HypervError::ReadFailed);
+                len: buf.len(),
+            });
         }
 
         if bytes_read != buf.len() as u64 {
@@ -164,6 +247,9 @@ impl HypervConnector {
             });
         }
 
+        // Copy from page-aligned buffer to caller's buffer
+        buf.copy_from_slice(&aligned_buf.as_bytes()[..buf.len()]);
+
         std::result::Result::Ok(())
     }
 
@@ -171,15 +257,14 @@ impl HypervConnector {
 
     pub unsafe fn read_physical_chunked(&self, address: u64, buf: &mut [u8]) {
         if buf.len() <= Self::CHUNK_SIZE {
-            log::info!("Reading {:#X} - {:#X}", address, address + buf.len() as u64);
-
             let result = self.read_physical(address, buf);
             if let Err(e) = result {
                 log::warn!(
-                    "Error reading {:#X} - {:#X}: {:?}",
+                    "Error while reading start {:#X} end {:#X}: error {:?} hyperv-last-error {}",
                     address,
                     address + buf.len() as u64,
-                    e
+                    e,
+                    hyperv_get_last_error()
                 );
                 buf.fill(0);
             }
@@ -188,15 +273,14 @@ impl HypervConnector {
 
         for (n, chunk) in buf.chunks_mut(Self::CHUNK_SIZE).enumerate() {
             let start = address + (n * Self::CHUNK_SIZE) as u64;
-            log::info!("Reading {:#X} - {:#X}", start, start + chunk.len() as u64);
-
             let result = self.read_physical(start, chunk);
             if let Err(e) = result {
                 log::warn!(
-                    "Error reading {:#X} - {:#X}: {:?}",
+                    "Error while reading start {:#X} end {:#X}: error {:?} hyperv-last-error {}",
                     start,
                     start + chunk.len() as u64,
-                    e
+                    e,
+                    hyperv_get_last_error()
                 );
                 chunk.fill(0);
             }

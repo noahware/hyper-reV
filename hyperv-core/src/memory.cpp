@@ -11,39 +11,27 @@ constexpr std::uint64_t max_physical_address = 0x0000FFFFFFFFFFFFULL;
 
 uint64_t read_physical(void *destination, std::uint64_t physical_address, std::uint64_t size)
 {
-    logger::log_debug("read_physical - ENTRY: destination=0x%p physical_address=0x%llX size=0x%llX", destination,
-                      physical_address, size);
-
-    if (!destination)
+    if (!destination || physical_address > max_physical_address || size == 0)
     {
-        logger::log_error("read_physical - FAILED: destination is NULL");
-        return 0;
-    }
-
-    if (physical_address > max_physical_address)
-    {
-        logger::log_error("read_physical - FAILED: physical_address 0x%llX exceeds max 0x%llX", physical_address,
-                          max_physical_address);
-        return 0;
-    }
-
-    if (size == 0)
-    {
-        logger::log_warning("read_physical - WARNING: size is 0");
+        logger::log_error("read_physical: wrong parameters!");
         return 0;
     }
 
     std::uint64_t result = hypercall::read_guest_physical_memory(destination, physical_address, size);
-
     if (result != size)
     {
-        logger::log_warning("read_physical - PARTIAL: requested=0x%llX actual=0x%llX", size, result);
+        if (is_translation_error(result))
+        {
+            logger::log_error("read_physical: destination=0x%p physical_address=0x%llX translation error: %d",
+                              destination, physical_address, (uint8_t)get_translation_result(result));
+            return UINT64_MAX;
+        }
+        else
+        {
+            logger::log_warning("read_physical: physical_address=0x%llX requested=0x%llX actual=0x%llX",
+                                physical_address, size, result);
+        }
     }
-    else
-    {
-        logger::log_debug("read_physical - SUCCESS: read 0x%llX bytes from 0x%llX", result, physical_address);
-    }
-
     return result;
 }
 

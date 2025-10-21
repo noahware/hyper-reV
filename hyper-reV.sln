@@ -11,6 +11,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "usermode", "usermode\usermo
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hyperv-core", "hyperv-core\hyperv-core.vcxproj", "{72A6EF68-3B34-4D2C-9E93-BB737DCF6ACB}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared", "shared", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
+	ProjectSection(SolutionItems) = preProject
+		shared\structures\memory_operation.h = shared\structures\memory_operation.h
+		shared\structures\trap_frame.h = shared\structures\trap_frame.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_memread", "tests\test_memread\test_memread.vcxproj", "{20E48674-7638-4AB1-B555-2FE1B9DEE5CB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Release|x64 = Release|x64
@@ -24,9 +34,14 @@ Global
 		{2EA786E4-1147-4804-AEAD-17975E24EC46}.Release|x64.Build.0 = Release|x64
 		{72A6EF68-3B34-4D2C-9E93-BB737DCF6ACB}.Release|x64.ActiveCfg = Release|x64
 		{72A6EF68-3B34-4D2C-9E93-BB737DCF6ACB}.Release|x64.Build.0 = Release|x64
+		{20E48674-7638-4AB1-B555-2FE1B9DEE5CB}.Release|x64.ActiveCfg = Release|x64
+		{20E48674-7638-4AB1-B555-2FE1B9DEE5CB}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{20E48674-7638-4AB1-B555-2FE1B9DEE5CB} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0CE579B4-F0E1-4F00-82B8-423DB9B76507}
