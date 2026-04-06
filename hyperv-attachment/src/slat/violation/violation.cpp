@@ -20,10 +20,11 @@ std::uint8_t slat::violation::process()
 
 	if (hook_entry == nullptr)
 	{
-		// potentially newly added executable page
-		if (qualification.execute_access)
+		if (qualification.execute_access && get_cr3().flags != hyperv_cr3().flags)
 		{
 			set_cr3(hyperv_cr3());
+
+			return 1;
 		}
 
 		return 0;
