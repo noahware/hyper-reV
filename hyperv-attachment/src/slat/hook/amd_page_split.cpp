@@ -78,8 +78,8 @@ void slat::hook::unfix_split_instructions(const entry_t* const hook_entry, const
 		}
 	}
 
-	// no nearby hooks enough to have to shed executability
-	set_previous_page_executability(slat_cr3, target_guest_address, 0);
-	set_next_page_executability(slat_cr3, target_guest_address, 0);
+	// no nearby hooks, restore both adjacent pages to non-executable
+	set_previous_page_executability(slat_cr3, target_guest_address, 1);
+	set_next_page_executability(slat_cr3, target_guest_address, 1);
 }
 #endif
