@@ -3,5 +3,5 @@
 
 namespace commands
 {
-	void process(std::string command);
+	void process(const std::string& command);
 }

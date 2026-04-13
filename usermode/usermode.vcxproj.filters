@@ -63,6 +63,9 @@
     <ClCompile Include="src\hook\hook_disassembly.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\logs\logs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="src\hypercall\vmexit.asm">
@@ -122,6 +125,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\hook\hook_disassembly.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\commands\kernel_hook\kernel_hook.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\logs\logs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

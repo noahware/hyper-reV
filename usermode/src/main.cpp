@@ -1,34 +1,40 @@
 #include <iostream>
 #include <thread>
 #include <string>
-#include <print>
+
 #include <Windows.h>
 
 #include "commands/commands.h"
 #include "hook/hook.h"
+#include "logs/logs.h"
 #include "system/system.h"
 
 std::int32_t main()
 {
-    if (sys::set_up() == 0)
-    {
-        std::system("pause");
+	logs::set_up();
 
-        return 1;
-    }
+	if (sys::set_up() == 0)
+	{
+		std::system("pause");
+
+		return 1;
+	}
+
+	sys::kernel::parse_modules();
 
 	while (true)
 	{
-		std::print("> ");
+		LOG_PRINTNOLINE("> ");
 
-		std::string command = { };
+		std::string command;
+
 		std::getline(std::cin, command);
 
 		if (command == "exit")
 		{
 			break;
 		}
-			
+
 		commands::process(command);
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(25));

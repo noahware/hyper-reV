@@ -14,5 +14,6 @@ union parted_address_t
 
 namespace hook_disasm
 {
-	std::pair<std::vector<std::uint8_t>, std::uint64_t> get_routine_aligned_bytes(std::uint8_t* routine, std::uint64_t minimum_size, std::uint64_t routine_runtime_address);
+	std::pair<std::vector<std::uint8_t>, std::uint64_t> get_routine_aligned_bytes(
+		std::uint8_t* routine, std::uint64_t minimum_size, std::uint64_t routine_runtime_address);
 }
