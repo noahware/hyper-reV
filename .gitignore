@@ -401,4 +401,3 @@ FodyWeavers.xsd
 *.sln.iml
 /usermode/usermode.vcxproj
 /usermode/usermode.vcxproj.filters
-/.gitignore
