@@ -60,63 +60,67 @@ void process_first_vmexit()
     }
 }
 
-std::uint64_t do_vmexit_premature_return()
-{
-#ifdef _INTELMACHINE
-    return 0;
-#else
-    return __readgsqword(0);
-#endif
-}
-
-std::uint64_t vmexit_handler_detour(const std::uint64_t a1, const std::uint64_t a2, const std::uint64_t a3, const std::uint64_t a4)
+static std::uint8_t handle_vmexit(const std::uint64_t exit_reason, trap_frame_t* const trap_frame)
 {
     process_first_vmexit();
 
-    const std::uint64_t exit_reason = arch::get_vmexit_reason();
-
     if (arch::is_cpuid(exit_reason) == 1)
     {
-#ifdef _INTELMACHINE
-        trap_frame_t* const trap_frame = *reinterpret_cast<trap_frame_t**>(a1);
-#else
-        trap_frame_t* const trap_frame = *reinterpret_cast<trap_frame_t**>(a2);
-#endif
-
         const hypercall_info_t hypercall_info = { .value = trap_frame->rcx };
 
         if (hypercall_info.primary_key == hypercall_primary_key && hypercall_info.secondary_key == hypercall_secondary_key)
         {
-#ifndef _INTELMACHINE
-            vmcb_t* const vmcb = arch::get_vmcb();
-
-            trap_frame->rax = vmcb->save_state.rax;
-#endif
-
-            trap_frame->rsp = arch::get_guest_rsp();
-
             hypercall::process(hypercall_info, trap_frame);
 
-#ifndef _INTELMACHINE
-            vmcb->save_state.rax = trap_frame->rax;
-#endif
-
-            arch::set_guest_rsp(trap_frame->rsp);
-            arch::advance_guest_rip();
-
-            return do_vmexit_premature_return();
+            return 1;
         }
     }
     else if (arch::is_slat_violation(exit_reason) == 1 && slat::violation::process() == 1)
     {
-        return do_vmexit_premature_return();
+        return 1;
     }
     else if (arch::is_non_maskable_interrupt_exit(exit_reason) == 1)
     {
         interrupts::process_nmi();
     }
 
-    return reinterpret_cast<vmexit_handler_t>(original_vmexit_handler)(a1, a2, a3, a4);
+    return 0;
+}
+
+std::uint64_t vmexit_handler_detour(const std::uint64_t a1, const std::uint64_t a2, const std::uint64_t a3, const std::uint64_t a4)
+{
+#ifdef _INTELMACHINE
+    trap_frame_t* const trap_frame = *reinterpret_cast<trap_frame_t**>(a1);
+#else
+    trap_frame_t* const trap_frame = *reinterpret_cast<trap_frame_t**>(a2);
+#endif
+
+    trap_frame_t original_frame = *trap_frame;
+
+#ifndef _INTELMACHINE
+    vmcb_t* const vmcb = arch::get_vmcb();
+
+    original_frame.rax = vmcb->save_state.rax;
+#endif
+
+    original_frame.rsp = arch::get_guest_rsp();
+
+    const auto return_value = reinterpret_cast<vmexit_handler_t>(original_vmexit_handler)(a1, a2, a3, a4);
+
+    const std::uint64_t exit_reason = arch::get_vmexit_reason();
+
+    if (handle_vmexit(exit_reason, &original_frame))
+    {
+        *trap_frame = original_frame;
+
+#ifndef _INTELMACHINE
+        vmcb->save_state.rax = original_frame.rax;
+#endif
+
+        arch::set_guest_rsp(original_frame.rsp);
+    }
+
+    return return_value;
 }
 
 void entry_point(std::uint8_t** const vmexit_handler_detour_out, std::uint8_t* const original_vmexit_handler_routine, const std::uint64_t heap_physical_base, const std::uint64_t heap_physical_usable_base, const std::uint64_t heap_total_size, const std::uint64_t _uefi_boot_physical_base_address, const std::uint32_t _uefi_boot_image_size,

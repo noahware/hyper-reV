@@ -163,7 +163,7 @@ std::uint8_t copy_stack_data_from_log_exit(std::uint64_t* const stack_data, cons
             return 0;
         }
 
-        crt::copy_memory(reinterpret_cast<std::uint8_t*>(stack_data) + bytes_read, reinterpret_cast<const std::uint8_t*>(rsp_mapped) + bytes_read, size_to_read);
+        crt::copy_memory(reinterpret_cast<std::uint8_t*>(stack_data) + bytes_read, rsp_mapped, size_to_read);
 
         bytes_remaining -= size_to_read;
         bytes_read += size_to_read;

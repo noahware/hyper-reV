@@ -153,7 +153,7 @@ void set_up_hyperv_hooks(cr3 hyperv_cr3, virtual_address_t entry_point)
             if (status == EFI_NOT_FOUND)
             {
                 // search for Intel's vmexit handler
-                status = scan_image(&code_ref_to_vmexit_handler, (CHAR8*)hyperv_text_base, hyperv_text_size, "\xE8\x00\x00\x00\x00\xE9\x00\x00\x00\x00\x74", "x????x????x");
+                status = scan_image(&code_ref_to_vmexit_handler, (CHAR8*)hyperv_text_base, hyperv_text_size, "\xE8\x00\x00\x00\x00\xE9\x00\x00\x00\x00\x74\x0D", "x????x????xx");
 
                 is_intel = 1;
             }

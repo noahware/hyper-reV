@@ -1,6 +1,6 @@
 #include "kernel_detour_holder.h"
 
-void kernel_detour_holder::set_up(std::uint64_t holder_base, std::uint64_t holder_size)
+void kernel_detour_holder::set_up(const std::uint64_t holder_base, const std::uint64_t holder_size)
 {
 	list_head = reinterpret_cast<detour_entry_t*>(holder_base);
 
@@ -13,7 +13,6 @@ void kernel_detour_holder::set_up(std::uint64_t holder_base, std::uint64_t holde
 void* kernel_detour_holder::allocate_memory(const std::uint16_t size)
 {
 	detour_entry_t* entry = list_head;
-
 	detour_entry_t* best_split = nullptr;
 
 	while (entry != nullptr)
@@ -36,7 +35,7 @@ void* kernel_detour_holder::allocate_memory(const std::uint16_t size)
 			}
 		}
 
-		entry = entry->get_next();
+		entry = entry->next();
 	}
 
 	if (best_split != nullptr)
@@ -52,27 +51,27 @@ void* kernel_detour_holder::allocate_memory(const std::uint16_t size)
 	return nullptr;
 }
 
-std::uint16_t kernel_detour_holder::get_allocation_offset(void* pointer)
+std::uint16_t kernel_detour_holder::get_allocation_offset(const void* const buffer)
 {
-	std::uint64_t base = reinterpret_cast<std::uint64_t>(list_head);
-	std::uint64_t allocation = reinterpret_cast<std::uint64_t>(pointer);
+	const auto base = reinterpret_cast<std::uint64_t>(list_head);
+	const auto allocation = reinterpret_cast<std::uint64_t>(buffer);
 
-	std::uint16_t offset = static_cast<std::uint16_t>(allocation - base);
+	const auto offset = static_cast<std::uint16_t>(allocation - base);
 
 	return offset;
 }
 
-void* kernel_detour_holder::get_allocation_from_offset(std::uint16_t offset)
+void* kernel_detour_holder::get_allocation_from_offset(const std::uint16_t offset)
 {
-	std::uint64_t base = reinterpret_cast<std::uint64_t>(list_head);
-	std::uint64_t allocation = base + offset;
+	const auto base = reinterpret_cast<std::uint64_t>(list_head);
+	const std::uint64_t allocation = base + offset;
 
 	return reinterpret_cast<void*>(allocation);
 }
 
-void try_merge_of_next_entry(kernel_detour_holder::detour_entry_t* current_entry)
+static void try_merge_of_next_entry(kernel_detour_holder::detour_entry_t* current_entry)
 {
-	kernel_detour_holder::detour_entry_t* next = current_entry->get_next();
+	const auto* const next = current_entry->next();
 
 	if (next != nullptr && next->is_allocated == 0)
 	{
@@ -80,23 +79,23 @@ void try_merge_of_next_entry(kernel_detour_holder::detour_entry_t* current_entry
 	}
 }
 
-void kernel_detour_holder::free_memory(void* allocation_base)
+void kernel_detour_holder::free_memory(void* const buffer)
 {
-	if (allocation_base == nullptr)
+	if (buffer == nullptr)
 	{
 		return;
 	}
 
-	detour_entry_t* entry = static_cast<detour_entry_t*>(allocation_base) - 1;
+	detour_entry_t* const entry = static_cast<detour_entry_t*>(buffer) - 1;
 
 	entry->is_allocated = 0;
 
 	try_merge_of_next_entry(entry);
 }
 
-kernel_detour_holder::detour_entry_t* kernel_detour_holder::detour_entry_t::get_next()
+kernel_detour_holder::detour_entry_t* kernel_detour_holder::detour_entry_t::next()
 {
-	std::uint64_t next_entry = reinterpret_cast<std::uint64_t>(this + 1) + this->size;
+	const std::uint64_t next_entry = reinterpret_cast<std::uint64_t>(this + 1) + this->size;
 
 	if (holder_end <= next_entry)
 	{
@@ -112,9 +111,10 @@ kernel_detour_holder::detour_entry_t* kernel_detour_holder::detour_entry_t::get_
 // if its bigger than 4kb, then it will shrink from the other direction
 // this will allow us to manage the memory better, so when we search for deallocated entries of the same size,
 // we wont have to search as far
-kernel_detour_holder::detour_entry_t* kernel_detour_holder::detour_entry_t::split(std::uint16_t size_of_next_entry)
+kernel_detour_holder::detour_entry_t* kernel_detour_holder::detour_entry_t::split(
+	const std::uint16_t size_of_next_entry)
 {
-	std::uint16_t needed_size = size_of_next_entry + sizeof(detour_entry_t);
+	const std::uint16_t needed_size = size_of_next_entry + sizeof(detour_entry_t);
 
 	if (this->is_allocated == 1 || this->size <= needed_size)
 	{
@@ -123,7 +123,7 @@ kernel_detour_holder::detour_entry_t* kernel_detour_holder::detour_entry_t::spli
 
 	this->size -= needed_size;
 
-	detour_entry_t* next_entry = this->get_next();
+	detour_entry_t* next_entry = this->next();
 
 	next_entry->is_allocated = 1;
 	next_entry->size = size_of_next_entry;
