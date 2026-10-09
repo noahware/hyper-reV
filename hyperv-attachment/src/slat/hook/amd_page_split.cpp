@@ -50,7 +50,7 @@ void slat::hook::unfix_split_instructions(const entry_t* const hook_entry, const
 
 		const std::uint8_t is_page_nearby = abs_pfn_difference <= 2;
 
-		std::uint8_t has_fixed = 1;
+		std::uint8_t has_fixed = 0;
 
 		if (is_page_nearby == 1 && 0 < pfn_difference)
 		{
