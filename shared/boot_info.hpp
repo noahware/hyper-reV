@@ -1,6 +1,17 @@
 #pragma once
+#include <cstdint>
+#include <cstddef>
+
+struct phys_range
+{
+	std::uintptr_t base;
+	std::size_t size;
+};
 
 struct boot_info
 {
-	
+	std::uint8_t* orig_vmexit_handler;
+	phys_range boot_img;
+	phys_range heap_range;
+	std::uintptr_t usable_heap_base;
 };

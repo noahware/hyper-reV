@@ -1,8 +1,8 @@
 #include "hyperv.hpp"
-
 #include "../hook/hook.hpp"
 #include "../hyperv_attachment/hva.hpp"
 #include "../sig/sig.hpp"
+#include <boot_info.hpp>
 
 namespace
 {
@@ -46,6 +46,15 @@ namespace
 
 		util::patch_rel(vmexit_handler, trampoline, rel.rva_off, rel.rip_off);
 	}
+
+	[[nodiscard]] boot_info form_boot_info() noexcept
+	{
+		const boot_info bi = {
+			
+		};
+
+		return bi;
+	}
 }
 
 efi::status hyperv::place_hooks(pe::image* const img)
@@ -57,7 +66,9 @@ efi::status hyperv::place_hooks(pe::image* const img)
 
 	//std::uint8_t* const amd_vmcb_gadget = find_amd_vmcb_gadget(img);
 
-	std::uint8_t* const vmexit_detour = hva::call_entry_point();
+	const boot_info bi = form_boot_info();
+
+	std::uint8_t* const vmexit_detour = hva::call_entry_point(bi);
 
 	std::uint8_t* const trampoline = setup_near_trampoline(img, vmexit_detour);
 
