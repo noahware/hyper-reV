@@ -5,6 +5,7 @@
 #include "../mem/heap.hpp"
 
 #include <pe/image.hpp>
+#include <boot_info.hpp>
 
 #define HVA_PATH L"\\efi\\microsoft\\boot\\hyperv-attachment.dll"
 
@@ -74,13 +75,13 @@ efi::status hva::load_from_disk()
 	return efi::success;
 }
 
-std::uint8_t* hva::call_entry_point()
+std::uint8_t* hva::call_entry_point(const boot_info& bi)
 {
-	using entry_point_fn = std::uint8_t* (*)();
+	using entry_point_fn = std::uint8_t*(*)(const boot_info&);
 
 	const auto ep = reinterpret_cast<entry_point_fn>(hva_entry_point);
 
-	std::uint8_t* const vmexit_detour = ep();
+	std::uint8_t* const vmexit_detour = ep(bi);
 
 	return vmexit_detour;
 }
