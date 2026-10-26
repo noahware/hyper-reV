@@ -74,3 +74,18 @@ phys_addr mem::heap::alloc_page_aligned(const std::size_t size) noexcept
 
 	return alloc_pages(page_count);
 }
+
+phys_addr mem::heap::base() noexcept
+{
+	return heap_base;
+}
+
+std::size_t mem::heap::size() noexcept
+{
+	return heap_page_count * page_size;
+}
+
+phys_addr mem::heap::curr() noexcept
+{
+	return curr_heap;
+}

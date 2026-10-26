@@ -1,6 +1,8 @@
 #include "hyperv.hpp"
 #include "../hook/hook.hpp"
 #include "../hyperv_attachment/hva.hpp"
+#include "../efi/boot.hpp"
+#include "../mem/heap.hpp"
 #include "../sig/sig.hpp"
 #include <boot_info.hpp>
 
@@ -47,10 +49,19 @@ namespace
 		util::patch_rel(vmexit_handler, trampoline, rel.rva_off, rel.rip_off);
 	}
 
-	[[nodiscard]] boot_info form_boot_info() noexcept
+	[[nodiscard]] boot_info form_boot_info(std::uint8_t* const vmexit_handler) noexcept
 	{
 		const boot_info bi = {
-			
+			.orig_vmexit_handler = vmexit_handler,
+			.boot_img = {
+				.base = reinterpret_cast<std::uintptr_t>(efi::curr_phys_base),
+				.size = efi::curr_img_size,
+			},
+			.heap_range = {
+				.base = mem::heap::base(),
+				.size = mem::heap::size(),
+			},
+			.usable_heap_base = mem::heap::curr(),
 		};
 
 		return bi;
@@ -66,7 +77,7 @@ efi::status hyperv::place_hooks(pe::image* const img)
 
 	//std::uint8_t* const amd_vmcb_gadget = find_amd_vmcb_gadget(img);
 
-	const boot_info bi = form_boot_info();
+	const boot_info bi = form_boot_info(vmexit_handler);
 
 	std::uint8_t* const vmexit_detour = hva::call_entry_point(bi);
 
