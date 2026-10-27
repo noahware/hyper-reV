@@ -24,7 +24,7 @@ namespace
 
 	[[nodiscard]] std::uint8_t* find_amd_vmcb_gadget(pe::image* const img) noexcept
 	{
-		if (is_amd)
+		if (!is_amd)
 			return nullptr;
 
 		return sig::amd_vmcb_gadget.find(img);
@@ -68,6 +68,7 @@ namespace
 	{
 		const boot_info bi = {
 			.orig_vmexit_handler = vmexit_handler,
+			.vmcb_gadget = find_amd_vmcb_gadget(img),
 			.boot_img = {
 				.base = reinterpret_cast<std::uintptr_t>(efi::curr_phys_base),
 				.size = efi::curr_img_size,
@@ -91,8 +92,6 @@ efi::status hyperv::place_hooks(pe::image* const img)
 
 	if (!vmexit_handler)
 		return efi::not_found;
-
-	//std::uint8_t* const amd_vmcb_gadget = find_amd_vmcb_gadget(img);
 
 	const boot_info bi = form_boot_info(img, vmexit_handler);
 

@@ -11,6 +11,7 @@ struct phys_range
 struct boot_info
 {
 	std::uint8_t* orig_vmexit_handler;
+	std::uint8_t* vmcb_gadget;
 	phys_range boot_img;
 	phys_range heap_range;
 	std::uintptr_t usable_heap_base;

@@ -8,6 +8,8 @@ concept has_flags = requires(T val) { val.flags; };
 
 struct intel
 {
+	static void init(const boot_info&) {}
+
 	static std::uint64_t vmread(std::uint64_t field)
 	{
 		std::uint64_t val = 0;

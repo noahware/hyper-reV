@@ -3,8 +3,11 @@
 #include "guest_regs.hpp"
 #include "exit_reason.hpp"
 
+struct boot_info;
+
 template <typename T>
-concept arch_backend = requires {
+concept arch_backend = requires(const boot_info& bi) {
+	{ T::init(bi)                                                         } -> cstd::same_as<void>;
 	{ T::guest_regs(std::uint64_t{}, std::uint64_t{})                     } -> cstd::same_as<struct guest_regs>;
 	{ T::set_guest_regs(std::uint64_t{}, std::uint64_t{}, ::guest_regs{}) } -> cstd::same_as<void>;
 

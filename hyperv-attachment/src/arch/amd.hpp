@@ -4,6 +4,7 @@
 
 struct amd
 {
+	static void init(const boot_info& bi);
 	static struct vmcb* vmcb();
 
 	static struct guest_regs guest_regs(std::uint64_t, std::uint64_t a2)
