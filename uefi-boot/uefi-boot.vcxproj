@@ -37,6 +37,7 @@
     <ClInclude Include="src\mem\mem.hpp" />
     <ClInclude Include="src\mem\page_tables.hpp" />
     <ClInclude Include="src\sig\sig.hpp" />
+    <ClInclude Include="src\util\log.hpp" />
     <ClInclude Include="src\util\scan.hpp" />
     <ClInclude Include="src\winload\winload.hpp" />
   </ItemGroup>
@@ -63,6 +64,7 @@
     </Link>
     <ClCompile>
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdcpp20</LanguageStandard>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/Zc:preprocessor %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
   </ItemDefinitionGroup>
 </Project>

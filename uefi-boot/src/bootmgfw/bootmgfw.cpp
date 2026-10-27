@@ -1,18 +1,18 @@
 #include "bootmgfw.hpp"
 #include "../efi/boot.hpp"
 #include "../efi/file.hpp"
+#include "../efi/image.hpp"
+#include "../hook/hook.hpp"
+#include "../hook/load_pe_img.hpp"
+#include "../sig/sig.hpp"
+#include "../util/log.hpp"
+#include "../winload/winload.hpp"
 #include <pe/image.hpp>
 
 extern "C" {
 #include <Library/DevicePathLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 }
-
-#include "../efi/image.hpp"
-#include "../hook/hook.hpp"
-#include "../hook/load_pe_img.hpp"
-#include "../sig/sig.hpp"
-#include "../winload/winload.hpp"
 
 #define BOOTMGFW_PATH L"\\efi\\microsoft\\boot\\bootmgfw.efi"
 #define ORIG_BOOTMGFW_PATH L"\\efi\\microsoft\\boot\\bootmgfw.original.efi"
@@ -71,7 +71,10 @@ namespace
 
         if (file_info->name().contains(L"winload.efi"))
         {
-	        winload::place_hooks(*img);
+            if (winload::place_hooks(*img))
+                LOG(L"successfully placed winload hooks");
+            else
+                LOG("failed to place winload hooks");
         }
         else
         {
