@@ -9,7 +9,6 @@ using phys_addr = std::uint64_t;
 constexpr std::size_t page_size = 0x1000;
 constexpr std::size_t page_mask = page_size - 1;
 constexpr std::size_t page_shift = 12;
-constexpr std::size_t pml4e_shift = 39;
 constexpr std::size_t pte_count = 512;
 
 namespace arch

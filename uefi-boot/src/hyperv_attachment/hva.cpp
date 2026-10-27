@@ -45,7 +45,7 @@ namespace
 			cstd::crt::memcpy(dest, src, sec.size_of_raw_data);
 		}
 
-		const std::uintptr_t hva_base = hvloader::hyperv_mapping_base() + base_addr;
+		const std::uintptr_t hva_base = hva_identity_map_base() + base_addr;
 
 		const std::uintptr_t delta = hva_base - file_img->base_addr();
 

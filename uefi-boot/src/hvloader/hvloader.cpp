@@ -18,7 +18,7 @@ namespace
 		const pml4e_64 orig_pml4e = mem::pt::insert_identity_pml4e(hyperv_cr3, 0);
 
 		// this pml4e will persist, 0 will not
-		mem::pt::insert_identity_pml4e(hyperv_cr3, hvloader::hyperv_pml4e_idx);
+		mem::pt::insert_identity_pml4e(hyperv_cr3, hva_identity_map_pml4e);
 
 		return orig_pml4e;
 	}
