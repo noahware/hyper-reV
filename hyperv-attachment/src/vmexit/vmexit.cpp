@@ -28,6 +28,8 @@ namespace
 			return;
 
 		wipe_boot_img();
+
+		// todo: hide heap memory from guest
 	}
 
 	bool handle_vmexit(guest_regs& regs) noexcept

@@ -8,6 +8,8 @@ bool hc::handle(guest_regs& regs)
 	switch (i.type)
 	{
 	case type::test:
+		regs.rax = 0x1337;
+
 		return true;
 	}
 
