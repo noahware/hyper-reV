@@ -78,6 +78,7 @@ namespace
 			},
 			.usable_heap_base = mem::heap::curr(),
 			.curr_cpu_id_gs_off = find_curr_cpu_id_gs_off(img),
+			.cpu_count = efi::cpu_count,
 		};
 
 		return bi;
