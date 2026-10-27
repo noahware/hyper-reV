@@ -56,7 +56,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\crt\crt.cpp" />
+    <ClCompile Include="deps\crt.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\mem\alloc\page.cpp" />
     <ClCompile Include="src\mem\alloc\slab.cpp" />
