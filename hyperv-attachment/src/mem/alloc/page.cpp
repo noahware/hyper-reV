@@ -27,8 +27,14 @@ namespace
 
 	void mark_indexes_used(const std::size_t start, const std::size_t size) noexcept
 	{
-		for (std::size_t i = start; i < size; i++)
-			free_pages.reset(i);
+		for (std::size_t i = 0; i < size; i++)
+			free_pages.reset(start + i);
+	}
+
+	void mark_indexes_free(const std::size_t start, const std::size_t size) noexcept
+	{
+		for (std::size_t i = 0; i < size; i++)
+			free_pages.set(start + i);
 	}
 
 	void mark_boot_used_pages(const boot_info& bi) noexcept
@@ -59,4 +65,13 @@ void* mem::page::alloc(const std::size_t n) noexcept
 	mark_indexes_used(start, n);
 
 	return reinterpret_cast<void*>(arena_base + start * page_size);
+}
+
+void mem::page::free(void* const p, const std::size_t n) noexcept
+{
+	if (!p)
+		return;
+
+	cstd::lock_guard lock(mutex);
+	mark_indexes_free(ptr_to_idx(p), n);
 }
