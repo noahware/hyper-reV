@@ -49,7 +49,22 @@ namespace
 		util::patch_rel(vmexit_handler, trampoline, rel.rva_off, rel.rip_off);
 	}
 
-	[[nodiscard]] boot_info form_boot_info(std::uint8_t* const vmexit_handler) noexcept
+	[[nodiscard]] std::uint32_t find_curr_cpu_id_gs_off(pe::image* const img) noexcept
+	{
+		const auto base = sig::curr_cpu_id_gs_off.find(img);
+
+		if (!base)
+			return 0;
+
+		// the 4 bytes at rva_off are the gs-relative offset the handler reads the current cpu id from
+		std::uint32_t gs_off = 0;
+
+		cstd::crt::memcpy(&gs_off, base + sig::curr_cpu_id_gs_off.rel->rva_off, sizeof(gs_off));
+
+		return gs_off;
+	}
+
+	[[nodiscard]] boot_info form_boot_info(pe::image* const img, std::uint8_t* const vmexit_handler) noexcept
 	{
 		const boot_info bi = {
 			.orig_vmexit_handler = vmexit_handler,
@@ -62,6 +77,7 @@ namespace
 				.size = mem::heap::size(),
 			},
 			.usable_heap_base = mem::heap::curr(),
+			.curr_cpu_id_gs_off = find_curr_cpu_id_gs_off(img),
 		};
 
 		return bi;
@@ -77,7 +93,7 @@ efi::status hyperv::place_hooks(pe::image* const img)
 
 	//std::uint8_t* const amd_vmcb_gadget = find_amd_vmcb_gadget(img);
 
-	const boot_info bi = form_boot_info(vmexit_handler);
+	const boot_info bi = form_boot_info(img, vmexit_handler);
 
 	std::uint8_t* const vmexit_detour = hva::call_entry_point(bi);
 

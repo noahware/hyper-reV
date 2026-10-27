@@ -1,9 +1,12 @@
 #include "vcpu.hpp"
+#include <boot_info.hpp>
 #include <ia32.hpp>
 #include <intrin.h>
 
 namespace
 {
+	std::uint32_t curr_cpu_id_gs_off = 0;
+
 	// not in ia32-doc, same register layout as CPUID_EXTENDED_TOPOLOGY (SDM vol 1, table 21-70)
 	constexpr std::uint32_t cpuid_v2_extended_topology = 0x1F;
 
@@ -78,9 +81,19 @@ namespace
 	}
 }
 
+void vcpu::init(const boot_info& bi)
+{
+	curr_cpu_id_gs_off = bi.curr_cpu_id_gs_off;
+}
+
 std::size_t vcpu::count()
 {
 	static const std::size_t count = get_apic_id_count();
 
 	return count;
+}
+
+std::size_t vcpu::curr_id()
+{
+	return __readgsdword(curr_cpu_id_gs_off);
 }

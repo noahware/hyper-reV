@@ -74,4 +74,10 @@ namespace sig
 	inline constexpr info code_cave_16{
 		"CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC CC"
 	};
+
+	// mov edx, gs:[curr_cpu_id_gs_off]; lea rcx, [...]; mov r8d, [...]
+	inline constexpr info curr_cpu_id_gs_off{
+		"65 8B 14 25 ? ? ? ? 48 8D 0D ? ? ? ? 44 8B 05",
+		rel{ .rva_off = 4, .rip_off = 0, .deref = false }
+	};
 }
