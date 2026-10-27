@@ -1,8 +1,7 @@
 #include "heap.hpp"
-
-#include <expected.hpp>
-
 #include "../efi/status.hpp"
+#include <expected.hpp>
+#include <heap.hpp>
 
 extern "C" {
 #include <Library/UefiBootServicesTableLib.h>
@@ -11,7 +10,7 @@ extern "C" {
 
 namespace
 {
-	constexpr std::size_t heap_page_count = 8192;
+	constexpr std::size_t heap_page_count = hva_heap_page_count;
 	phys_addr heap_base = 0;
 	phys_addr curr_heap = 0;
 
