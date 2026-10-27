@@ -55,6 +55,9 @@ void mem::page::init(const boot_info& bi) noexcept
 
 void* mem::page::alloc(const std::size_t n) noexcept
 {
+	if (n == 0)
+		return nullptr;
+
 	cstd::lock_guard lock(mutex);
 
 	const std::size_t start = free_pages.find_first_run(n);
@@ -69,7 +72,7 @@ void* mem::page::alloc(const std::size_t n) noexcept
 
 void mem::page::free(void* const p, const std::size_t n) noexcept
 {
-	if (!p)
+	if (!p || n == 0)
 		return;
 
 	cstd::lock_guard lock(mutex);
