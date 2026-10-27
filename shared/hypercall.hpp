@@ -2,7 +2,7 @@
 
 namespace hc
 {
-	inline constexpr std::uint16_t allowed_key = 0x8A3B55C7927;
+	inline constexpr std::uint64_t allowed_key = 0x8A3B55C7927;
 
 	enum class type : std::uint64_t
 	{
