@@ -1,5 +1,8 @@
-#include "../src/mem/alloc/slab.hpp"
+#pragma function(memset, memcpy)
 
+#include "../mem/alloc/slab.hpp"
+
+#include <cstdint>
 #include <crt.hpp>
 
 #include <intrin.h>
@@ -64,28 +67,9 @@ void operator delete[](void* const buffer, [[maybe_unused]] const std::size_t si
 	cstd::crt::free(buffer);
 }
 
-extern "C"
+// The attachment never unloads, so static destructors would never run anyway.
+// Provide a no-op stub so any registration the compiler emits links cleanly.
+extern "C" int atexit(void (*)())
 {
-	#pragma function(memset)
-	void* memset(void* const destination, const int value, const std::size_t size)
-	{
-		cstd::crt::memset(destination, value, size);
-
-		return destination;
-	}
-
-	#pragma function(memcpy)
-	void* memcpy(void* const destination, const void* const source, const std::size_t size)
-	{
-		cstd::crt::memcpy(destination, source, size);
-
-		return destination;
-	}
-
-	// The attachment never unloads, so static destructors would never run anyway.
-	// Provide a no-op stub so any registration the compiler emits links cleanly.
-	int atexit(void (*)()) noexcept
-	{
-		return 0;
-	}
+	return 0;
 }
