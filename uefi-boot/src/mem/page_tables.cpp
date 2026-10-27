@@ -1,10 +1,10 @@
 #include "page_tables.hpp"
 #include "heap.hpp"
+#include <crt.hpp>
 
 namespace
 {
 	::cr3 identity_cr3 = { };
-	pml4e_64 identity_pml4e = { };
 }
 
 void mem::pt::init()
@@ -15,9 +15,11 @@ void mem::pt::init()
 	auto* pml4 = reinterpret_cast<pml4e_64*>(pml4_base);
 	auto* pdpt = reinterpret_cast<pdpte_1gb_64*>(pdpt_base);
 
+	cstd::crt::memset(pml4, 0, page_size);
+	cstd::crt::memset(pdpt, 0, page_size);
+
 	pml4e_64& pml4e = pml4[0];
 
-	pml4e.flags = 0;
 	pml4e.page_frame_number = pdpt_base >> page_shift;
 	pml4e.present = true;
 	pml4e.write = true;
@@ -26,7 +28,6 @@ void mem::pt::init()
 	{
 		pdpte_1gb_64& pdpte = pdpt[i];
 
-		pdpte.flags = 0;
 		pdpte.page_frame_number = i;
 		pdpte.present = true;
 		pdpte.write = true;
@@ -35,13 +36,13 @@ void mem::pt::init()
 
 	::identity_cr3.flags = 0;
 	::identity_cr3.address_of_page_directory = pml4_base >> page_shift;
-
-	::identity_pml4e = pml4e;
 }
 
 pml4e_64 mem::pt::identity_pml4e()
 {
-	return ::identity_pml4e;
+	const auto pml4 = map_phys<pml4e_64*>(::identity_cr3.address_of_page_directory << page_shift);
+
+	return pml4[0];
 }
 
 pml4e_64 mem::pt::insert_pml4e(const cr3 cr3, const pml4e_64 pml4e, const std::size_t idx)
@@ -57,7 +58,7 @@ pml4e_64 mem::pt::insert_pml4e(const cr3 cr3, const pml4e_64 pml4e, const std::s
 
 pml4e_64 mem::pt::insert_identity_pml4e(const cr3 cr3, const std::size_t idx)
 {
-	return insert_pml4e(cr3, ::identity_pml4e, idx);
+	return insert_pml4e(cr3, identity_pml4e(), idx);
 }
 
 ::cr3 mem::pt::identity_cr3()

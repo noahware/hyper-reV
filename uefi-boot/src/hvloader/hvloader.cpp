@@ -48,11 +48,6 @@ namespace
 		}
 	}
 
-	void apply_hyperv_hooks(const pe::image* const img) noexcept
-	{
-		
-	}
-
 	void launch_hv_detour(const ::cr3 hyperv_cr3, void* const hyperv_entry_point, void* const jmp_gadget,
 	                      const ::cr3 kernel_cr3) noexcept
 	{
@@ -68,6 +63,7 @@ namespace
 		const auto img = find_hyperv_base(hyperv_entry_point);
 
 		hyperv::place_hooks(img);
+		mem::pt::load_identity_cr3();
 
 		partially_restore_page_tables(hyperv_cr3, orig_pml4e);
 
