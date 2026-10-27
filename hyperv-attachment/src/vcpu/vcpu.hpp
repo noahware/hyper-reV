@@ -7,8 +7,6 @@ struct boot_info;
 class vcpu
 {
 public:
-	vcpu();
-
 	static void init(const boot_info& bi);
 
 	static std::size_t count();
