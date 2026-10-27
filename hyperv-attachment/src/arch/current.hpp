@@ -1,5 +1,7 @@
 #pragma once
 
+#define ARCH_INTEL
+
 #if defined(ARCH_INTEL)
 	#include "intel.hpp"
 	using arch = intel;

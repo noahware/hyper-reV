@@ -64,7 +64,14 @@
     <ClCompile Include="src\vmexit\vmexit.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\arch\amd.hpp" />
+    <ClInclude Include="src\arch\amd_def.hpp" />
+    <ClInclude Include="src\arch\arch.hpp" />
+    <ClInclude Include="src\arch\current.hpp" />
     <ClInclude Include="src\arch\defs.hpp" />
+    <ClInclude Include="src\arch\exit_reason.hpp" />
+    <ClInclude Include="src\arch\guest_regs.hpp" />
+    <ClInclude Include="src\arch\intel.hpp" />
     <ClInclude Include="src\mem\alloc\page.hpp" />
     <ClInclude Include="src\mem\alloc\slab.hpp" />
     <ClInclude Include="src\vcpu\vcpu.hpp" />
