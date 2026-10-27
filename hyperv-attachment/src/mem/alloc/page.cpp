@@ -53,6 +53,11 @@ void mem::page::init(const boot_info& bi) noexcept
 	mark_boot_used_pages(bi);
 }
 
+std::size_t mem::page::index_of(const void* const p) noexcept
+{
+	return ptr_to_idx(p);
+}
+
 void* mem::page::alloc(const std::size_t n) noexcept
 {
 	if (n == 0)

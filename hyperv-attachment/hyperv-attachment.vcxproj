@@ -28,7 +28,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)\build\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\build\$(Platform)\$(Configuration)\obj\$(TargetName)\</IntDir>
-    <IncludePath>$(SolutionDir)shared;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)shared;$(SolutionDir)vendor\cstd\src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -56,10 +56,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\crt\crt.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\mem\alloc\page.cpp" />
+    <ClCompile Include="src\mem\alloc\slab.cpp" />
     <ClCompile Include="src\vmexit\vmexit.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\arch\defs.hpp" />
+    <ClInclude Include="src\mem\alloc\page.hpp" />
+    <ClInclude Include="src\mem\alloc\slab.hpp" />
     <ClInclude Include="src\vmexit\vmexit.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
