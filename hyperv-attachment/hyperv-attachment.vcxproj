@@ -62,6 +62,7 @@
     <ClCompile Include="src\mem\alloc\page.cpp" />
     <ClCompile Include="src\mem\alloc\slab.cpp" />
     <ClCompile Include="src\vcpu\vcpu.cpp" />
+    <ClCompile Include="src\vmexit\hypercall\hypercall.cpp" />
     <ClCompile Include="src\vmexit\vmexit.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -77,6 +78,7 @@
     <ClInclude Include="src\mem\alloc\slab.hpp" />
     <ClInclude Include="src\mem\map.hpp" />
     <ClInclude Include="src\vcpu\vcpu.hpp" />
+    <ClInclude Include="src\vmexit\hypercall\hypercall.hpp" />
     <ClInclude Include="src\vmexit\vmexit.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

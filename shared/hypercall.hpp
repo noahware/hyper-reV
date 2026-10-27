@@ -2,7 +2,7 @@
 
 namespace hc
 {
-	inline constexpr std::uint16_t allowed_key = 0xA3B55C7927;
+	inline constexpr std::uint16_t allowed_key = 0x8A3B55C7927;
 
 	enum class type : std::uint64_t
 	{
@@ -15,8 +15,8 @@ namespace hc
 
 		struct
 		{
-			std::uint64_t key : 48;
 			type type : 16;
+			std::uint64_t key : 48;
 		};
 	};
 }

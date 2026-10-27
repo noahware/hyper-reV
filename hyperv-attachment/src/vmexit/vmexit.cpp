@@ -1,4 +1,5 @@
 #include "vmexit.hpp"
+#include "hypercall/hypercall.hpp"
 #include "../arch/current.hpp"
 #include "../mem/map.hpp"
 #include <boot_info.hpp>
@@ -34,7 +35,7 @@ namespace
 		switch (arch::exit_reason())
 		{
 		case exit_reason::cpuid:
-			return false;
+			return hc::handle(regs);
 		default:
 			return false;
 		}
