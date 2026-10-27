@@ -21,8 +21,7 @@ namespace
 		{
 			not_managed = 0,
 			slab,
-			raw_pages,
-			reserved
+			raw_pages
 		};
 
 		kind         kind : 2 = kind::not_managed;
