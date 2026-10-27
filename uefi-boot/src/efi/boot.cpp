@@ -5,6 +5,7 @@ extern "C" {
 #include <Uefi.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Protocol/SimpleFileSystem.h>
+#include <Pi/PiMultiPhase.h>
 #include <Protocol/MpService.h>
 }
 
