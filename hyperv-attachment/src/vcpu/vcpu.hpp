@@ -35,4 +35,6 @@ struct vcpu
 			fn(get(i), i);
 		}
 	}
+
+	cstd::atomic<bool> flush_needed{};
 };
