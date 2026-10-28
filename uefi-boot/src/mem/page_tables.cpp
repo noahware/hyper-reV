@@ -74,3 +74,31 @@ pml4e_64 mem::pt::insert_identity_pml4e(const cr3 cr3, const std::size_t idx)
 
 	return old_cr3;
 }
+
+bool mem::pt::is_va_exec(const ::cr3 cr3, const std::uintptr_t va) noexcept
+{
+	const virt_addr va_bits = { .addr = reinterpret_cast<void*>(va) };
+
+	const auto pml4 = map_phys<const pml4e_64*>(cr3.address_of_page_directory << page_shift);
+	const pml4e_64 pml4e = pml4[va_bits.pml4e];
+	if (!pml4e.present || pml4e.execute_disable)
+		return false;
+
+	const auto pdpt = map_phys<const pdpte_64*>(pml4e.page_frame_number << page_shift);
+	const pdpte_64 pdpte = pdpt[va_bits.pdpte];
+	if (!pdpte.present || pdpte.execute_disable)
+		return false;
+	if (pdpte.large_page) // 1 GiB leaf
+		return true;
+
+	const auto pd = map_phys<const pde_64*>(pdpte.page_frame_number << page_shift);
+	const pde_64 pde = pd[va_bits.pde];
+	if (!pde.present || pde.execute_disable)
+		return false;
+	if (pde.large_page) // 2 MiB leaf
+		return true;
+
+	const auto ptbl = map_phys<const pte_64*>(pde.page_frame_number << page_shift);
+	const pte_64 pte = ptbl[va_bits.pte];
+	return pte.present && !pte.execute_disable;
+}

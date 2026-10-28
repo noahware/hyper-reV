@@ -13,6 +13,8 @@ namespace mem::pt
 	::cr3 identity_cr3();
 	::cr3 load_identity_cr3();
 
+	[[nodiscard]] bool is_va_exec(::cr3 cr3, std::uintptr_t va) noexcept;
+
 	template <class T = void*>
 	[[nodiscard]] T map_phys(phys_addr addr) noexcept
 	{
