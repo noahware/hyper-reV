@@ -8,6 +8,18 @@ concept has_flags = requires(T val) { val.flags; };
 
 struct intel
 {
+	using slat_pte   = ept_pte;
+	using slat_pde   = ept_pde;
+	using slat_pdpte = ept_pdpte;
+	using slat_pml4e = ept_pml4e;
+
+	static void set_slat_pte_perm(ept_pte& pte, const page_perm perm)
+	{
+		pte.read_access    = (perm & page_perm::read) != page_perm::none;
+		pte.write_access   = (perm & page_perm::write) != page_perm::none;
+		pte.execute_access = (perm & page_perm::execute) != page_perm::none;
+	}
+
 	static void init(const boot_info&) {}
 
 	static std::uint64_t vmread(std::uint64_t field)

@@ -4,6 +4,18 @@
 
 struct amd
 {
+	using slat_pte   = pte_64;
+	using slat_pde   = pde_64;
+	using slat_pdpte = pdpte_64;
+	using slat_pml4e = pml4e_64;
+
+	static void set_slat_pte_perm(pte_64& pte, const page_perm perm)
+	{
+		pte.present    = (perm & page_perm::read) != page_perm::none;
+		pte.write      = (perm & page_perm::write) != page_perm::none;
+		pte.no_execute = (perm & page_perm::execute) == page_perm::none;
+	}
+
 	static void init(const boot_info& bi);
 	static struct vmcb* vmcb();
 

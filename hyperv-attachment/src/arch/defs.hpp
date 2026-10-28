@@ -22,6 +22,27 @@ union virt_addr
 };
 #pragma warning(pop)
 
+enum class page_perm : std::uint8_t
+{
+	none    = 0,
+	read    = 1 << 0,
+	write   = 1 << 1,
+	execute = 1 << 2,
+	rw      = read | write,
+	rx      = read | execute,
+	rwx     = read | write | execute,
+};
+
+constexpr page_perm operator&(const page_perm a, const page_perm b)
+{
+	return static_cast<page_perm>(static_cast<std::uint8_t>(a) & static_cast<std::uint8_t>(b));
+}
+
+constexpr page_perm operator|(const page_perm a, const page_perm b)
+{
+	return static_cast<page_perm>(static_cast<std::uint8_t>(a) | static_cast<std::uint8_t>(b));
+}
+
 inline constexpr std::size_t page_shift = 12;
 inline constexpr std::size_t large_page_shift = 21;
 inline constexpr std::size_t large_page_1gb_shift = 30;
