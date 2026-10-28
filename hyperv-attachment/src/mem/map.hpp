@@ -9,4 +9,9 @@ namespace mem
 	{
 		return reinterpret_cast<T>(hva_identity_map_base() + addr);
 	}
+
+	[[nodiscard]] inline std::uintptr_t unmap_phys(const void* ptr) noexcept
+	{
+		return reinterpret_cast<std::uintptr_t>(ptr) - hva_identity_map_base();
+	}
 }

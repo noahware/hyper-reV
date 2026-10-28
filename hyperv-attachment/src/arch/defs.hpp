@@ -60,3 +60,4 @@ inline constexpr std::size_t large_page_shift = 21;
 inline constexpr std::size_t large_page_1gb_shift = 30;
 inline constexpr std::size_t page_size = 0x1000;
 inline constexpr std::size_t page_mask = page_size - 1;
+inline constexpr std::size_t paging_entry_count = 512;
