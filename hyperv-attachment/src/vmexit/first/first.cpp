@@ -2,6 +2,7 @@
 #include "../../mem/map.hpp"
 #include "../../vcpu/vcpu.hpp"
 #include "../../slat/slat.hpp"
+#include "../../intr/nmi.hpp"
 
 #include <atomic.hpp>
 #include <boot_info.hpp>
@@ -33,6 +34,7 @@ void vmexit::first::handle()
 
 	wipe_boot_img();
 	slat::init();
+	intr::nmi::init();
 }
 
 void vmexit::first::handle_non_bsp()

@@ -22,13 +22,16 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
+  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)\build\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\build\$(Configuration)\obj\$(TargetName)\</IntDir>
-    <IncludePath>$(SolutionDir)shared;$(SolutionDir)vendor\cstd\src;$(SolutionDir)vendor\ia32-doc\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)shared;$(SolutionDir)vendor\cstd\src;$(SolutionDir)vendor\ia32-doc\;$(SolutionDir)vendor\apic\src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -70,6 +73,11 @@
     <ClCompile Include="src\slat\cr3\deep_copy.cpp" />
     <ClCompile Include="src\slat\hook\hook.cpp" />
     <ClCompile Include="src\slat\violation\violation.cpp" />
+    <ClCompile Include="src\slat\hook\cache.cpp" />
+    <ClCompile Include="src\intr\nmi.cpp" />
+    <ClCompile Include="src\intr\idt.cpp" />
+    <ClCompile Include="src\intr\apic_glue.cpp" />
+    <ClCompile Include="$(SolutionDir)vendor\apic\src\apic.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\arch\amd.hpp" />
@@ -95,6 +103,15 @@
     <ClInclude Include="src\slat\hook\hook.hpp" />
     <ClInclude Include="src\slat\hook\info.hpp" />
     <ClInclude Include="src\slat\violation\violation.hpp" />
+    <ClInclude Include="src\slat\hook\cache.hpp" />
+    <ClInclude Include="src\intr\nmi.hpp" />
+    <ClInclude Include="src\intr\idt.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="src\intr\nmi_entry.asm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
+  </ImportGroup>
 </Project>
