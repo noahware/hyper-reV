@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <identity_map.hpp>
+#include "../arch/defs.hpp"
 
 namespace mem
 {

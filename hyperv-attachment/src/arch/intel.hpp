@@ -98,8 +98,8 @@ struct intel
 
 	static cr3 guest_cr3() { return vmread<cr3>(VMCS_GUEST_CR3); }
 
-	static cr3 slat_cr3()                    { return vmread<cr3>(VMCS_EPT_POINTER); }
-	static void set_slat_cr3(const cr3 cr3)  { vmwrite(VMCS_EPT_POINTER, cr3); }
+	static cr3 slat_cr3()                    { return vmread<cr3>(VMCS_CTRL_EPT_POINTER); }
+	static void set_slat_cr3(const cr3 cr3)  { vmwrite(VMCS_CTRL_EPT_POINTER, cr3); }
 	static void flush_slat_cache()
 	{
 		intel_invept_all(invept_type::invept_all_context, {});
