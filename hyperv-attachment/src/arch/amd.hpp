@@ -44,11 +44,39 @@ struct amd
 
 	static cr3 guest_cr3() { return cr3{ .flags = vmcb()->save_state.cr3 }; }
 
+	static cr3 slat_cr3()                    { return vmcb()->control.nested_cr3; }
+	static void set_slat_cr3(const cr3 cr3)
+	{
+		vmcb()->control.nested_cr3 = cr3;
+		vmcb()->control.tlb_control = tlb_control::flush_entire_tlb;
+	}
+	static void flush_slat_cache()
+	{
+		vmcb()->control.tlb_control = tlb_control::flush_entire_tlb;
+	}
+
+	static struct slat_violation slat_violation()
+	{
+		const npf_exit_info info{ .flags = vmcb()->control.first_exit_info };
+
+		page_perm access = page_perm::none;
+		if (info.present)        access |= page_perm::read;
+		if (info.write_access)   access |= page_perm::write;
+		if (info.execute_access) access |= page_perm::execute;
+
+		return {
+			.gpa = vmcb()->control.second_exit_info,
+			.access = access,
+			.caused_by_translation = static_cast<bool>(info.present),
+		};
+	}
+
 	static exit_reason exit_reason()
 	{
 		switch (vmcb()->control.vmexit_reason)
 		{
 		case SVM_EXIT_REASON_CPUID:  return exit_reason::cpuid;
+		case SVM_EXIT_REASON_NPF:    return exit_reason::slat_violation;
 		default:                      return exit_reason::unknown;
 		}
 	}

@@ -6,6 +6,8 @@
 template <class T>
 concept has_flags = requires(T val) { val.flags; };
 
+extern "C" void intel_invept_all(invept_type type, const invept_descriptor& descriptor);
+
 struct intel
 {
 	using slat_pte   = ept_pte;
@@ -69,12 +71,38 @@ struct intel
 
 	static cr3 guest_cr3() { return vmread<cr3>(VMCS_GUEST_CR3); }
 
+	static cr3 slat_cr3()                    { return vmread<cr3>(VMCS_EPT_POINTER); }
+	static void set_slat_cr3(const cr3 cr3)  { vmwrite(VMCS_EPT_POINTER, cr3); }
+	static void flush_slat_cache()
+	{
+		intel_invept_all(invept_type::invept_all_context, {});
+	}
+
+	static struct slat_violation slat_violation()
+	{
+		const vmx_exit_qualification_ept_violation qual{
+			.flags = vmread(VMCS_EXIT_QUALIFICATION)
+		};
+
+		page_perm access = page_perm::none;
+		if (qual.read_access)    access |= page_perm::read;
+		if (qual.write_access)   access |= page_perm::write;
+		if (qual.execute_access) access |= page_perm::execute;
+
+		return {
+			.gpa = vmread(VMCS_GUEST_PHYSICAL_ADDRESS),
+			.access = access,
+			.caused_by_translation = static_cast<bool>(qual.caused_by_translation),
+		};
+	}
+
 	static exit_reason exit_reason()
 	{
 		switch (vmread(VMCS_EXIT_REASON) & 0xFFFF)
 		{
-		case VMX_EXIT_REASON_EXECUTE_CPUID:  return exit_reason::cpuid;
-		default:                              return exit_reason::unknown;
+		case VMX_EXIT_REASON_EXECUTE_CPUID:    return exit_reason::cpuid;
+		case VMX_EXIT_REASON_EPT_VIOLATION:    return exit_reason::slat_violation;
+		default:                                return exit_reason::unknown;
 		}
 	}
 };

@@ -43,6 +43,18 @@ constexpr page_perm operator|(const page_perm a, const page_perm b)
 	return static_cast<page_perm>(static_cast<std::uint8_t>(a) | static_cast<std::uint8_t>(b));
 }
 
+constexpr page_perm& operator|=(page_perm& a, const page_perm b)
+{
+	return a = a | b;
+}
+
+struct slat_violation
+{
+	phys_addr gpa;
+	page_perm access;
+	bool caused_by_translation;
+};
+
 inline constexpr std::size_t page_shift = 12;
 inline constexpr std::size_t large_page_shift = 21;
 inline constexpr std::size_t large_page_1gb_shift = 30;
