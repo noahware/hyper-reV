@@ -16,11 +16,20 @@ struct amd
 		return entry.present;
 	}
 
-	static void set_slat_pte_perm(pte_64& pte, const page_perm perm)
+	template <typename T>
+		requires requires(T e) { e.present; e.write; e.no_execute; }
+	static void slat_set_perm(T& entry, const page_perm perm)
 	{
-		pte.present    = (perm & page_perm::read) != page_perm::none;
-		pte.write      = (perm & page_perm::write) != page_perm::none;
-		pte.no_execute = (perm & page_perm::execute) == page_perm::none;
+		entry.present    = (perm & page_perm::read) != page_perm::none;
+		entry.write      = (perm & page_perm::write) != page_perm::none;
+		entry.no_execute = (perm & page_perm::execute) == page_perm::none;
+	}
+
+	template <typename T>
+		requires requires(const T e) { e.large_page; e.flags; }
+	static bool slat_is_large(const T& entry)
+	{
+		return entry.large_page;
 	}
 
 	static void init(const boot_info& bi);

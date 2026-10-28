@@ -8,7 +8,9 @@
 struct boot_info;
 
 template <typename T>
-concept arch_backend = requires(const boot_info& bi, typename T::slat_pte pte) {
+concept arch_backend = requires(const boot_info& bi,
+	typename T::slat_pte pte, typename T::slat_pde pde,
+	typename T::slat_pdpte pdpte, typename T::slat_pml4e pml4e) {
 	{ T::init(bi)                                                         } -> cstd::same_as<void>;
 	{ T::guest_regs(std::uint64_t{}, std::uint64_t{})                     } -> cstd::same_as<struct guest_regs>;
 	{ T::set_guest_regs(std::uint64_t{}, std::uint64_t{}, ::guest_regs{}) } -> cstd::same_as<void>;
@@ -24,12 +26,18 @@ concept arch_backend = requires(const boot_info& bi, typename T::slat_pte pte) {
 	typename T::slat_pde;
 	typename T::slat_pdpte;
 	typename T::slat_pml4e;
-	{ T::set_slat_pte_perm(pte, page_perm{}) } -> cstd::same_as<void>;
-
 	{ T::slat_is_present(typename T::slat_pte{})   } -> cstd::same_as<bool>;
 	{ T::slat_is_present(typename T::slat_pde{})    } -> cstd::same_as<bool>;
 	{ T::slat_is_present(typename T::slat_pdpte{})  } -> cstd::same_as<bool>;
 	{ T::slat_is_present(typename T::slat_pml4e{})  } -> cstd::same_as<bool>;
+
+	{ T::slat_set_perm(pte, page_perm{})    } -> cstd::same_as<void>;
+	{ T::slat_set_perm(pde, page_perm{})    } -> cstd::same_as<void>;
+	{ T::slat_set_perm(pdpte, page_perm{})  } -> cstd::same_as<void>;
+	{ T::slat_set_perm(pml4e, page_perm{})  } -> cstd::same_as<void>;
+
+	{ T::slat_is_large(typename T::slat_pde{})    } -> cstd::same_as<bool>;
+	{ T::slat_is_large(typename T::slat_pdpte{})   } -> cstd::same_as<bool>;
 
 	{ T::slat_cr3()               } -> cstd::same_as<::cr3>;
 	{ T::set_slat_cr3(::cr3{})    } -> cstd::same_as<void>;

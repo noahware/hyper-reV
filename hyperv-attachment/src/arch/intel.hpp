@@ -22,11 +22,20 @@ struct intel
 		return entry.read_access || entry.write_access || entry.execute_access;
 	}
 
-	static void set_slat_pte_perm(ept_pte& pte, const page_perm perm)
+	template <typename T>
+		requires requires(T e) { e.read_access; e.write_access; e.execute_access; }
+	static void slat_set_perm(T& entry, const page_perm perm)
 	{
-		pte.read_access    = (perm & page_perm::read) != page_perm::none;
-		pte.write_access   = (perm & page_perm::write) != page_perm::none;
-		pte.execute_access = (perm & page_perm::execute) != page_perm::none;
+		entry.read_access    = (perm & page_perm::read) != page_perm::none;
+		entry.write_access   = (perm & page_perm::write) != page_perm::none;
+		entry.execute_access = (perm & page_perm::execute) != page_perm::none;
+	}
+
+	template <typename T>
+		requires requires(const T e) { e.large_page; e.flags; }
+	static bool slat_is_large(const T& entry)
+	{
+		return entry.large_page;
 	}
 
 	static void init(const boot_info&) {}
