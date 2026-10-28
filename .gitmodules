@@ -11,3 +11,6 @@
 [submodule "vendor/pe"]
 	path = vendor/pe
 	url = https://github.com/noahware/pe
+[submodule "vendor/apic"]
+	path = vendor/apic
+	url = https://github.com/noahware/apic
