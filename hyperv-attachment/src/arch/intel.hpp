@@ -125,10 +125,19 @@ struct intel
 
 	static exit_reason exit_reason()
 	{
-		switch (vmread(VMCS_EXIT_REASON) & 0xFFFF)
+		const auto reason = vmread(VMCS_EXIT_REASON) & 0xFFFF;
+
+		switch (reason)
 		{
 		case VMX_EXIT_REASON_EXECUTE_CPUID:    return exit_reason::cpuid;
 		case VMX_EXIT_REASON_EPT_VIOLATION:    return exit_reason::slat_violation;
+		case VMX_EXIT_REASON_EXCEPTION_OR_NMI:
+		{
+			const auto info = vmread<vmexit_interrupt_information>(VMCS_VMEXIT_INTERRUPTION_INFORMATION);
+			if (info.interruption_type == interruption_type::non_maskable_interrupt)
+				return exit_reason::nmi;
+			return exit_reason::unknown;
+		}
 		default:                                return exit_reason::unknown;
 		}
 	}

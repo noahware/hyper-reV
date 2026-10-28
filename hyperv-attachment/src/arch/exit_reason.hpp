@@ -5,5 +5,6 @@ enum class exit_reason : std::uint32_t
 {
 	cpuid,
 	slat_violation,
+	nmi,
 	unknown,
 };

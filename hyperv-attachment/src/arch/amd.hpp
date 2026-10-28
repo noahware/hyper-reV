@@ -102,9 +102,10 @@ struct amd
 	{
 		switch (vmcb()->control.vmexit_reason)
 		{
-		case SVM_EXIT_REASON_CPUID:  return exit_reason::cpuid;
-		case SVM_EXIT_REASON_NPF:    return exit_reason::slat_violation;
-		default:                      return exit_reason::unknown;
+		case SVM_EXIT_REASON_CPUID:        return exit_reason::cpuid;
+		case SVM_EXIT_REASON_NPF:          return exit_reason::slat_violation;
+		case SVM_EXIT_REASON_PHYSICAL_NMI: return exit_reason::nmi;
+		default:                            return exit_reason::unknown;
 		}
 	}
 };
