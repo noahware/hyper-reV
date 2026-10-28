@@ -1,6 +1,7 @@
 #include "violation.hpp"
 #include "../cr3/cr3.hpp"
 #include "../hook/info.hpp"
+#include "../hook/split.hpp"
 #include "../../arch/current.hpp"
 
 bool slat::violation::handle() noexcept
@@ -17,6 +18,8 @@ bool slat::violation::handle() noexcept
 
 	if (arch::slat_cr3().flags != cr3::hyperv_cr3.flags)
 	{
+		hook::handle_page_split(page_gpa);
+
 		arch::set_slat_cr3(cr3::hyperv_cr3);
 		arch::flush_slat_cache();
 		return true;
