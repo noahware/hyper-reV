@@ -24,10 +24,12 @@ namespace
 			return slat::violation::handle();
 		case exit_reason::nmi:
 			intr::nmi::process();
-			return true;
+			break;
 		default:
-			return false;
+			break;
 		}
+
+		return false;
 	}
 }
 
