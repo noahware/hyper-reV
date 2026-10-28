@@ -1,9 +1,9 @@
-#include "guest.hpp"
+#include "virt.hpp"
 #include "map.hpp"
 #include <crt.hpp>
 #include <utility.hpp>
 
-phys_addr mem::guest::translate_va(const cr3 cr3, const std::uintptr_t va_raw) noexcept
+phys_addr mem::translate_va(const cr3 cr3, const std::uintptr_t va_raw) noexcept
 {
 	const virt_addr va{ .val = va_raw };
 	const auto pml4 = mem::map_phys<const pml4e_64*>(cr3.address_of_page_directory << page_shift);
@@ -42,8 +42,8 @@ phys_addr mem::guest::translate_va(const cr3 cr3, const std::uintptr_t va_raw) n
 	return (pte.page_frame_number << page_shift) | va.off;
 }
 
-bool mem::guest::copy_phys(const std::uintptr_t src, const std::uintptr_t dest,
-                           const std::uint64_t size) noexcept
+bool mem::copy_phys(const std::uintptr_t src, const std::uintptr_t dest,
+                    const std::uint64_t size) noexcept
 {
 	auto remaining = size;
 	auto curr_src = src;
@@ -68,9 +68,9 @@ bool mem::guest::copy_phys(const std::uintptr_t src, const std::uintptr_t dest,
 	return true;
 }
 
-bool mem::guest::copy_virt(const cr3 src_cr3, const std::uintptr_t src,
-                           const cr3 dest_cr3, const std::uintptr_t dest,
-                           const std::uint64_t size) noexcept
+bool mem::copy_virt(const cr3 src_cr3, const std::uintptr_t src,
+                    const cr3 dest_cr3, const std::uintptr_t dest,
+                    const std::uint64_t size) noexcept
 {
 	auto remaining = size;
 	auto curr_src = src;

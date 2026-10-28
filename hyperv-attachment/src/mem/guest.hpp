@@ -1,13 +1,23 @@
 #pragma once
-#include "../arch/defs.hpp"
-#include <ia32.hpp>
+#include "virt.hpp"
 
 namespace mem::guest
 {
-	phys_addr translate_va(cr3 cr3, std::uintptr_t va) noexcept;
+	inline phys_addr translate_va(const cr3 cr3, const std::uintptr_t va) noexcept
+	{
+		return mem::translate_va(cr3, va);
+	}
 
-	bool copy_phys(std::uintptr_t src, std::uintptr_t dest, std::uint64_t size) noexcept;
+	inline bool copy_phys(const std::uintptr_t src, const std::uintptr_t dest,
+	                       const std::uint64_t size) noexcept
+	{
+		return mem::copy_phys(src, dest, size);
+	}
 
-	bool copy_virt(cr3 src_cr3, std::uintptr_t src,
-	               cr3 dest_cr3, std::uintptr_t dest, std::uint64_t size) noexcept;
+	inline bool copy_virt(const cr3 src_cr3, const std::uintptr_t src,
+	                       const cr3 dest_cr3, const std::uintptr_t dest,
+	                       const std::uint64_t size) noexcept
+	{
+		return mem::copy_virt(src_cr3, src, dest_cr3, dest, size);
+	}
 }
