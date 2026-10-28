@@ -10,7 +10,8 @@ struct boot_info;
 template <typename T>
 concept arch_backend = requires(const boot_info& bi,
 	typename T::slat_pte pte, typename T::slat_pde pde,
-	typename T::slat_pdpte pdpte, typename T::slat_pml4e pml4e) {
+	typename T::slat_pdpte pdpte, typename T::slat_pml4e pml4e,
+	typename T::slat_pde_2mb pde_2mb, typename T::slat_pdpte_1gb pdpte_1gb) {
 	{ T::init(bi)                                                         } -> cstd::same_as<void>;
 	{ T::guest_regs(std::uint64_t{}, std::uint64_t{})                     } -> cstd::same_as<struct guest_regs>;
 	{ T::set_guest_regs(std::uint64_t{}, std::uint64_t{}, ::guest_regs{}) } -> cstd::same_as<void>;
@@ -43,6 +44,14 @@ concept arch_backend = requires(const boot_info& bi,
 
 	{ T::slat_is_large(typename T::slat_pde{})    } -> cstd::same_as<bool>;
 	{ T::slat_is_large(typename T::slat_pdpte{})   } -> cstd::same_as<bool>;
+
+	typename T::slat_pde_2mb;
+	typename T::slat_pdpte_1gb;
+	{ T::slat_init_split_pte(pte, pde_2mb, std::uint64_t{})       } -> cstd::same_as<void>;
+	{ T::slat_init_split_pde(pde_2mb, pdpte_1gb, std::uint64_t{}) } -> cstd::same_as<void>;
+	{ T::slat_set_table_pde(pde, std::uint64_t{})                 } -> cstd::same_as<void>;
+	{ T::slat_set_table_pdpte(pdpte, std::uint64_t{})             } -> cstd::same_as<void>;
+	{ T::slat_init_merge_pde(pde_2mb, pte)                        } -> cstd::same_as<void>;
 
 	{ T::slat_cr3()               } -> cstd::same_as<::cr3>;
 	{ T::set_slat_cr3(::cr3{})    } -> cstd::same_as<void>;

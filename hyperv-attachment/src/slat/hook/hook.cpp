@@ -1,41 +1,25 @@
 #include "hook.hpp"
 #include "info.hpp"
 #include "../cr3/cr3.hpp"
-#include "../../mem/map.hpp"
+#include "../cr3/split.hpp"
 #include "../../arch/current.hpp"
 #include "cache.hpp"
 
 namespace
 {
-	arch::slat_pte* find_leaf(const ::cr3 slat_cr3, const phys_addr gpa) noexcept
+	constexpr phys_addr large_page_2mb_mask = (1ULL << large_page_shift) - 1;
+
+	bool hook_in_merge_range(const phys_addr gpa) noexcept
 	{
-		const virt_addr va{ .val = gpa };
+		const auto base = gpa & ~large_page_2mb_mask;
 
-		auto* pml4 = mem::map_phys<arch::slat_pml4e*>(
-			slat_cr3.address_of_page_directory << page_shift);
-		auto& pml4e = pml4[va.pml4e];
+		for (const auto& entry : slat::hook::list)
+		{
+			if ((entry.gpa & ~large_page_2mb_mask) == base)
+				return true;
+		}
 
-		if (!arch::slat_is_present(pml4e))
-			return nullptr;
-
-		auto* pdpt = mem::map_phys<arch::slat_pdpte*>(
-			pml4e.page_frame_number << page_shift);
-		auto& pdpte = pdpt[va.pdpte];
-
-		if (!arch::slat_is_present(pdpte) || arch::slat_is_large(pdpte))
-			return nullptr;
-
-		auto* pd = mem::map_phys<arch::slat_pde*>(
-			pdpte.page_frame_number << page_shift);
-		auto& pde = pd[va.pde];
-
-		if (!arch::slat_is_present(pde) || arch::slat_is_large(pde))
-			return nullptr;
-
-		auto* pt = mem::map_phys<arch::slat_pte*>(
-			pde.page_frame_number << page_shift);
-
-		return &pt[va.pte];
+		return false;
 	}
 }
 
@@ -47,11 +31,11 @@ void slat::hook::add(const phys_addr gpa, const phys_addr shadow_hpa) noexcept
 		if (list.empty())
 			cr3::first_hook();
 
-		auto* orig_pte = find_leaf(cr3::hyperv_cr3, gpa);
+		auto* orig_pte = cr3::find_split_leaf(cr3::hyperv_cr3, gpa);
 		if (!orig_pte)
 			return;
 
-		auto* shadow_pte = find_leaf(cr3::shadow_cr3, gpa);
+		auto* shadow_pte = cr3::find_split_leaf(cr3::shadow_cr3, gpa);
 		if (!shadow_pte)
 			return;
 
@@ -78,10 +62,10 @@ void slat::hook::remove(const phys_addr gpa) noexcept
 			if (entry.gpa != gpa)
 				return false;
 
-			if (auto* orig_pte = find_leaf(cr3::hyperv_cr3, gpa))
+			if (auto* orig_pte = cr3::find_split_leaf(cr3::hyperv_cr3, gpa))
 				arch::slat_set_perm(*orig_pte, page_perm::rwx);
 
-			if (auto* shadow_pte = find_leaf(cr3::shadow_cr3, gpa))
+			if (auto* shadow_pte = cr3::find_split_leaf(cr3::shadow_cr3, gpa))
 			{
 				shadow_pte->page_frame_number = entry.original_hpa >> page_shift;
 				arch::slat_set_perm(*shadow_pte, page_perm::rwx);
@@ -89,6 +73,12 @@ void slat::hook::remove(const phys_addr gpa) noexcept
 
 			return true;
 		});
+
+		if (!hook_in_merge_range(gpa))
+		{
+			cr3::merge(cr3::hyperv_cr3, gpa);
+			cr3::merge(cr3::shadow_cr3, gpa);
+		}
 	}
 
 	cache::flush_all();

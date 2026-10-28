@@ -10,10 +10,12 @@ extern "C" void intel_invept_all(invept_type type, const invept_descriptor& desc
 
 struct intel
 {
-	using slat_pte   = ept_pte;
-	using slat_pde   = ept_pde;
-	using slat_pdpte = ept_pdpte;
-	using slat_pml4e = ept_pml4e;
+	using slat_pte       = ept_pte;
+	using slat_pde       = ept_pde;
+	using slat_pde_2mb   = ept_pde_2mb;
+	using slat_pdpte     = ept_pdpte;
+	using slat_pdpte_1gb = ept_pdpte_1gb;
+	using slat_pml4e     = ept_pml4e;
 
 	template <typename T>
 		requires requires(const T e) { e.read_access; e.flags; }
@@ -47,6 +49,80 @@ struct intel
 	static bool slat_is_large(const T& entry)
 	{
 		return (entry.flags >> 7) & 1;
+	}
+
+	static void slat_init_split_pte(slat_pte& pte, const slat_pde_2mb& large, std::uint64_t idx)
+	{
+		pte.flags = 0;
+		pte.read_access            = large.read_access;
+		pte.write_access           = large.write_access;
+		pte.execute_access         = large.execute_access;
+		pte.memory_type            = large.memory_type;
+		pte.ignore_pat             = large.ignore_pat;
+		pte.user_mode_execute      = large.user_mode_execute;
+		pte.verify_guest_paging    = large.verify_guest_paging;
+		pte.paging_write_access    = large.paging_write_access;
+		pte.supervisor_shadow_stack = large.supervisor_shadow_stack;
+		pte.suppress_ve            = large.suppress_ve;
+		pte.accessed               = large.accessed;
+		pte.dirty                  = large.dirty;
+		pte.page_frame_number      = (large.page_frame_number << 9) + idx;
+	}
+
+	static void slat_init_split_pde(slat_pde_2mb& pde, const slat_pdpte_1gb& large, std::uint64_t idx)
+	{
+		pde.flags = 0;
+		pde.read_access            = large.read_access;
+		pde.write_access           = large.write_access;
+		pde.execute_access         = large.execute_access;
+		pde.memory_type            = large.memory_type;
+		pde.ignore_pat             = large.ignore_pat;
+		pde.user_mode_execute      = large.user_mode_execute;
+		pde.verify_guest_paging    = large.verify_guest_paging;
+		pde.paging_write_access    = large.paging_write_access;
+		pde.supervisor_shadow_stack = large.supervisor_shadow_stack;
+		pde.suppress_ve            = large.suppress_ve;
+		pde.accessed               = large.accessed;
+		pde.dirty                  = large.dirty;
+		pde.page_frame_number      = (large.page_frame_number << 9) + idx;
+		pde.large_page             = 1;
+	}
+
+	static void slat_set_table_pde(slat_pde& entry, std::uint64_t child_pfn)
+	{
+		entry.flags = 0;
+		entry.read_access     = 1;
+		entry.write_access    = 1;
+		entry.execute_access  = 1;
+		entry.user_mode_execute = 1;
+		entry.page_frame_number = child_pfn;
+	}
+
+	static void slat_set_table_pdpte(slat_pdpte& entry, std::uint64_t child_pfn)
+	{
+		entry.flags = 0;
+		entry.read_access     = 1;
+		entry.write_access    = 1;
+		entry.execute_access  = 1;
+		entry.user_mode_execute = 1;
+		entry.page_frame_number = child_pfn;
+	}
+
+	static void slat_init_merge_pde(slat_pde_2mb& large, const slat_pte& pte)
+	{
+		large.flags = 0;
+		large.read_access            = pte.read_access;
+		large.write_access           = pte.write_access;
+		large.execute_access         = pte.execute_access;
+		large.memory_type            = pte.memory_type;
+		large.ignore_pat             = pte.ignore_pat;
+		large.user_mode_execute      = pte.user_mode_execute;
+		large.verify_guest_paging    = pte.verify_guest_paging;
+		large.paging_write_access    = pte.paging_write_access;
+		large.supervisor_shadow_stack = pte.supervisor_shadow_stack;
+		large.suppress_ve            = pte.suppress_ve;
+		large.page_frame_number      = pte.page_frame_number >> 9;
+		large.large_page             = 1;
 	}
 
 	static void init(const boot_info&) {}

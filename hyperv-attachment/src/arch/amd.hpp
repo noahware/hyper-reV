@@ -4,10 +4,12 @@
 
 struct amd
 {
-	using slat_pte   = pte_64;
-	using slat_pde   = pde_64;
-	using slat_pdpte = pdpte_64;
-	using slat_pml4e = pml4e_64;
+	using slat_pte       = pte_64;
+	using slat_pde       = pde_64;
+	using slat_pde_2mb   = pde_2mb_64;
+	using slat_pdpte     = pdpte_64;
+	using slat_pdpte_1gb = pdpte_1gb_64;
+	using slat_pml4e     = pml4e_64;
 
 	template <typename T>
 		requires requires(const T e) { e.present; e.flags; }
@@ -41,6 +43,75 @@ struct amd
 	static bool slat_is_large(const T& entry)
 	{
 		return entry.large_page;
+	}
+
+	static void slat_init_split_pte(slat_pte& pte, const slat_pde_2mb& large, std::uint64_t idx)
+	{
+		pte.flags = 0;
+		pte.execute_disable          = large.execute_disable;
+		pte.present                  = large.present;
+		pte.write                    = large.write;
+		pte.supervisor               = large.supervisor;
+		pte.page_level_write_through = large.page_level_write_through;
+		pte.page_level_cache_disable = large.page_level_cache_disable;
+		pte.global                   = large.global;
+		pte.pat                      = large.pat;
+		pte.protection_key           = large.protection_key;
+		pte.accessed                 = large.accessed;
+		pte.dirty                    = large.dirty;
+		pte.page_frame_number        = (large.page_frame_number << 9) + idx;
+	}
+
+	static void slat_init_split_pde(slat_pde_2mb& pde, const slat_pdpte_1gb& large, std::uint64_t idx)
+	{
+		pde.flags = 0;
+		pde.execute_disable          = large.execute_disable;
+		pde.present                  = large.present;
+		pde.write                    = large.write;
+		pde.supervisor               = large.supervisor;
+		pde.page_level_write_through = large.page_level_write_through;
+		pde.page_level_cache_disable = large.page_level_cache_disable;
+		pde.global                   = large.global;
+		pde.pat                      = large.pat;
+		pde.protection_key           = large.protection_key;
+		pde.accessed                 = large.accessed;
+		pde.dirty                    = large.dirty;
+		pde.page_frame_number        = (large.page_frame_number << 9) + idx;
+		pde.large_page               = 1;
+	}
+
+	static void slat_set_table_pde(slat_pde& entry, std::uint64_t child_pfn)
+	{
+		entry.flags = 0;
+		entry.present    = 1;
+		entry.write      = 1;
+		entry.supervisor = 1;
+		entry.page_frame_number = child_pfn;
+	}
+
+	static void slat_set_table_pdpte(slat_pdpte& entry, std::uint64_t child_pfn)
+	{
+		entry.flags = 0;
+		entry.present    = 1;
+		entry.write      = 1;
+		entry.supervisor = 1;
+		entry.page_frame_number = child_pfn;
+	}
+
+	static void slat_init_merge_pde(slat_pde_2mb& large, const slat_pte& pte)
+	{
+		large.flags = 0;
+		large.execute_disable          = pte.execute_disable;
+		large.present                  = pte.present;
+		large.write                    = pte.write;
+		large.supervisor               = pte.supervisor;
+		large.page_level_write_through = pte.page_level_write_through;
+		large.page_level_cache_disable = pte.page_level_cache_disable;
+		large.global                   = pte.global;
+		large.pat                      = pte.pat;
+		large.protection_key           = pte.protection_key;
+		large.page_frame_number        = pte.page_frame_number >> 9;
+		large.large_page               = 1;
 	}
 
 	static void init(const boot_info& bi);

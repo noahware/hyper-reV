@@ -71,6 +71,7 @@
     <ClCompile Include="src\vmexit\vmexit.cpp" />
     <ClCompile Include="src\slat\cr3\cr3.cpp" />
     <ClCompile Include="src\slat\cr3\deep_copy.cpp" />
+    <ClCompile Include="src\slat\cr3\split.cpp" />
     <ClCompile Include="src\slat\hook\hook.cpp" />
     <ClCompile Include="src\slat\violation\violation.cpp" />
     <ClCompile Include="src\slat\hook\cache.cpp" />
@@ -100,6 +101,7 @@
     <ClInclude Include="src\slat\slat.hpp" />
     <ClInclude Include="src\slat\cr3\cr3.hpp" />
     <ClInclude Include="src\slat\cr3\deep_copy.hpp" />
+    <ClInclude Include="src\slat\cr3\split.hpp" />
     <ClInclude Include="src\slat\hook\hook.hpp" />
     <ClInclude Include="src\slat\hook\info.hpp" />
     <ClInclude Include="src\slat\violation\violation.hpp" />
