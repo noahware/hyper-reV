@@ -7,6 +7,10 @@ struct boot_info;
 
 struct vcpu
 {
+	vcpu() = default;
+	vcpu(vcpu&& other) noexcept : flush_needed(other.flush_needed.load()) {}
+	vcpu& operator=(vcpu&& other) noexcept { flush_needed.store(other.flush_needed.load()); return *this; }
+
 	static void init(const boot_info& bi);
 
 	static std::size_t count();
