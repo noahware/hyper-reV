@@ -28,26 +28,6 @@ namespace
 		mem::pt::insert_pml4e(hyperv_cr3, orig_pml4e, 0);
 	}
 
-	[[nodiscard]] pe::image* find_hyperv_base(const void* const entry_point)
-	{
-		auto curr = reinterpret_cast<const std::uint8_t*>(
-			reinterpret_cast<std::uintptr_t>(entry_point) & ~page_mask
-		);
-
-		while (true)
-		{
-			const auto img = reinterpret_cast<const pe::image*>(curr);
-			const auto nt_hdrs = img->nt_hdrs();
-
-			// not checking for dos header magic
-			// as it is corrupted on some builds
-			if (nt_hdrs->ok())
-				return const_cast<pe::image*>(img);
-
-			curr -= page_size;
-		}
-	}
-
 	void launch_hv_detour(const ::cr3 hyperv_cr3, void* const hyperv_entry_point, void* const jmp_gadget,
 	                      const ::cr3 kernel_cr3) noexcept
 	{
@@ -60,9 +40,8 @@ namespace
 		// now contains identity map
 		arch::set_cr3(hyperv_cr3);
 
-		const auto img = find_hyperv_base(hyperv_entry_point);
+		hyperv::place_hooks(hyperv_entry_point);
 
-		hyperv::place_hooks(img);
 		mem::pt::load_identity_cr3();
 
 		partially_restore_page_tables(hyperv_cr3, orig_pml4e);
