@@ -1,17 +1,13 @@
 #include "deep_copy.hpp"
 #include "../../mem/map.hpp"
 #include "../../mem/alloc/page.hpp"
-#include <crt.hpp>
 
 namespace
 {
 	template <typename T>
 	[[nodiscard]] T* alloc_slat_page() noexcept
 	{
-		auto* page = static_cast<T*>(mem::page::alloc());
-		if (page)
-			cstd::crt::memset(page, 0, page_size);
-		return page;
+		return static_cast<T*>(mem::page::alloc());
 	}
 
 	template <typename Entry>

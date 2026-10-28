@@ -3,6 +3,7 @@
 #include <bitset.hpp>
 #include <boot_info.hpp>
 #include <mutex.hpp>
+#include <crt.hpp>
 
 #include "../../arch/defs.hpp"
 
@@ -72,7 +73,9 @@ void* mem::page::alloc(const std::size_t n) noexcept
 
 	mark_indexes_used(start, n);
 
-	return reinterpret_cast<void*>(arena_base + start * page_size);
+	auto* ptr = reinterpret_cast<void*>(arena_base + start * page_size);
+	cstd::crt::memset(ptr, 0, n * page_size);
+	return ptr;
 }
 
 void mem::page::free(void* const p, const std::size_t n) noexcept
