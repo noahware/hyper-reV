@@ -75,7 +75,7 @@ struct amd
 	static void set_slat_cr3(const cr3 cr3)
 	{
 		vmcb()->control.nested_cr3 = cr3;
-		vmcb()->control.tlb_control = tlb_control::flush_entire_tlb;
+		vmcb()->control.clean.nested_paging = 0;
 	}
 	static void flush_slat_cache()
 	{
