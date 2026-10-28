@@ -32,6 +32,17 @@ struct intel
 	}
 
 	template <typename T>
+		requires requires(const T e) { e.read_access; e.write_access; e.execute_access; }
+	static page_perm slat_perm(const T& entry)
+	{
+		page_perm perm = page_perm::none;
+		if (entry.read_access)    perm |= page_perm::read;
+		if (entry.write_access)   perm |= page_perm::write;
+		if (entry.execute_access) perm |= page_perm::execute;
+		return perm;
+	}
+
+	template <typename T>
 		requires requires(const T e) { e.large_page; e.flags; }
 	static bool slat_is_large(const T& entry)
 	{

@@ -26,6 +26,17 @@ struct amd
 	}
 
 	template <typename T>
+		requires requires(const T e) { e.present; e.write; e.no_execute; }
+	static page_perm slat_perm(const T& entry)
+	{
+		page_perm perm = page_perm::none;
+		if (entry.present)     perm |= page_perm::read;
+		if (entry.write)       perm |= page_perm::write;
+		if (!entry.no_execute) perm |= page_perm::execute;
+		return perm;
+	}
+
+	template <typename T>
 		requires requires(const T e) { e.large_page; e.flags; }
 	static bool slat_is_large(const T& entry)
 	{
