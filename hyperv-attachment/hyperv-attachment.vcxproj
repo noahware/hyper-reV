@@ -108,6 +108,7 @@
     <ClInclude Include="src\intr\idt.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <MASM Include="src\arch\intel_invept.asm" />
     <MASM Include="src\intr\nmi_entry.asm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -17,22 +17,22 @@ struct amd
 	}
 
 	template <typename T>
-		requires requires(T e) { e.present; e.write; e.no_execute; }
+		requires requires(T e) { e.present; e.write; e.execute_disable; }
 	static void slat_set_perm(T& entry, const page_perm perm)
 	{
-		entry.present    = (perm & page_perm::read) != page_perm::none;
-		entry.write      = (perm & page_perm::write) != page_perm::none;
-		entry.no_execute = (perm & page_perm::execute) == page_perm::none;
+		entry.present         = (perm & page_perm::read) != page_perm::none;
+		entry.write           = (perm & page_perm::write) != page_perm::none;
+		entry.execute_disable = (perm & page_perm::execute) == page_perm::none;
 	}
 
 	template <typename T>
-		requires requires(const T e) { e.present; e.write; e.no_execute; }
+		requires requires(const T e) { e.present; e.write; e.execute_disable; }
 	static page_perm slat_perm(const T& entry)
 	{
 		page_perm perm = page_perm::none;
-		if (entry.present)     perm |= page_perm::read;
-		if (entry.write)       perm |= page_perm::write;
-		if (!entry.no_execute) perm |= page_perm::execute;
+		if (entry.present)          perm |= page_perm::read;
+		if (entry.write)            perm |= page_perm::write;
+		if (!entry.execute_disable) perm |= page_perm::execute;
 		return perm;
 	}
 

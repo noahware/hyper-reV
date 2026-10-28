@@ -1,4 +1,5 @@
 #include "idt.hpp"
+#include <cstdint>
 #include <ia32.hpp>
 #include <intrin.h>
 

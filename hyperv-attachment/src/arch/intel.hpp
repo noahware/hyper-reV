@@ -43,10 +43,10 @@ struct intel
 	}
 
 	template <typename T>
-		requires requires(const T e) { e.large_page; e.flags; }
+		requires requires(const T e) { e.flags; }
 	static bool slat_is_large(const T& entry)
 	{
-		return entry.large_page;
+		return (entry.flags >> 7) & 1;
 	}
 
 	static void init(const boot_info&) {}

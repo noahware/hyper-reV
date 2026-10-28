@@ -43,6 +43,11 @@ constexpr page_perm operator|(const page_perm a, const page_perm b)
 	return static_cast<page_perm>(static_cast<std::uint8_t>(a) | static_cast<std::uint8_t>(b));
 }
 
+constexpr page_perm operator~(const page_perm a)
+{
+	return static_cast<page_perm>(~static_cast<std::uint8_t>(a));
+}
+
 constexpr page_perm& operator|=(page_perm& a, const page_perm b)
 {
 	return a = a | b;
