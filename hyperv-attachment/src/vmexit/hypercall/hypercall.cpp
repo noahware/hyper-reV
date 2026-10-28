@@ -5,6 +5,9 @@ bool hc::handle(guest_regs& regs)
 {
 	const info i{ .val = regs.rcx };
 
+	if (i.key != allowed_key)
+		return false;
+
 	switch (i.type)
 	{
 	case type::test:
