@@ -56,7 +56,7 @@ void slat::hook::add(const phys_addr gpa, const phys_addr shadow_hpa) noexcept
 	arch::slat_set_perm(*orig_pte, page_perm::rw);
 
 	shadow_pte->page_frame_number = shadow_hpa >> page_shift;
-	arch::slat_set_perm(*shadow_pte, page_perm::rx);
+	arch::slat_set_perm(*shadow_pte, page_perm::rwx);
 
 	list.push_front({ gpa, original_hpa, shadow_hpa });
 }

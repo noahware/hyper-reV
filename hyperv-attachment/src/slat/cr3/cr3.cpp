@@ -17,6 +17,6 @@ void slat::cr3::first_hook() noexcept
 
 	deep_copy(src_pml4, dest_pml4);
 
-	shadow_cr3.flags = 0;
+	shadow_cr3 = hyperv_cr3;
 	shadow_cr3.address_of_page_directory = mem::pfn_for_map(dest_pml4);
 }
