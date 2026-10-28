@@ -3,6 +3,7 @@
 #include "first/first.hpp"
 #include "../vcpu/vcpu.hpp"
 #include "../arch/current.hpp"
+#include "../slat/violation/violation.hpp"
 #include <boot_info.hpp>
 #include <crt.hpp>
 
@@ -18,6 +19,8 @@ namespace
 		{
 		case exit_reason::cpuid:
 			return hc::handle(regs);
+		case exit_reason::slat_violation:
+			return slat::violation::handle();
 		default:
 			return false;
 		}
