@@ -75,7 +75,7 @@
     <ClCompile Include="src\slat\hook\hook.cpp" />
     <ClCompile Include="src\slat\violation\violation.cpp" />
     <ClCompile Include="src\slat\hook\cache.cpp" />
-    <ClCompile Include="src\slat\hook\split.cpp" />
+    <ClCompile Include="src\slat\hook\page_split.cpp" />
     <ClCompile Include="src\intr\nmi.cpp" />
     <ClCompile Include="src\intr\idt.cpp" />
     <ClCompile Include="src\intr\apic_glue.cpp" />
@@ -107,7 +107,7 @@
     <ClInclude Include="src\slat\hook\info.hpp" />
     <ClInclude Include="src\slat\violation\violation.hpp" />
     <ClInclude Include="src\slat\hook\cache.hpp" />
-    <ClInclude Include="src\slat\hook\split.hpp" />
+    <ClInclude Include="src\slat\hook\page_split.hpp" />
     <ClInclude Include="src\intr\nmi.hpp" />
     <ClInclude Include="src\intr\idt.hpp" />
   </ItemGroup>
