@@ -23,6 +23,13 @@ namespace
 			sig::intel_vmexit_handler.find(rng.begin, rng.end);
 	}
 
+	[[nodiscard]] std::uint8_t* resolve_orig_vmexit_handler(std::uint8_t* const vmexit_handler) noexcept
+	{
+		const sig::rel rel = is_amd ? *sig::amd_vmexit_handler.rel : *sig::intel_vmexit_handler.rel;
+
+		return util::resolve_rel<std::uint8_t*>(vmexit_handler, rel.rva_off, rel.rip_off);
+	}
+
 	[[nodiscard]] std::uint8_t* find_amd_vmcb_gadget(const mem::code_range& rng) noexcept
 	{
 		if (!is_amd)
@@ -68,7 +75,7 @@ namespace
 	[[nodiscard]] boot_info form_boot_info(const mem::code_range& rng, std::uint8_t* const vmexit_handler) noexcept
 	{
 		const boot_info bi = {
-			.orig_vmexit_handler = vmexit_handler,
+			.orig_vmexit_handler = resolve_orig_vmexit_handler(vmexit_handler),
 			.vmcb_gadget = find_amd_vmcb_gadget(rng),
 			.boot_img = {
 				.base = reinterpret_cast<std::uintptr_t>(efi::curr_phys_base),
