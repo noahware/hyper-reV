@@ -7,4 +7,9 @@ namespace slat
 	{
 		cr3::init();
 	}
+
+	inline void first_hook() noexcept
+	{
+		cr3::first_hook();
+	}
 }

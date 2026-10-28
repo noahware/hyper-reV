@@ -32,6 +32,7 @@ void vmexit::first::handle()
 		return;
 
 	wipe_boot_img();
+	slat::init();
 }
 
 void vmexit::first::handle_non_bsp()
@@ -46,6 +47,4 @@ void vmexit::first::handle_non_bsp()
 
 	if (handled.exchange(true))
 		return;
-
-	slat::init();
 }
