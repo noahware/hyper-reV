@@ -65,7 +65,7 @@ void slat::hook::add(const phys_addr gpa, const phys_addr shadow_hpa) noexcept
 		list.push_front({ gpa, original_hpa, shadow_hpa });
 	}
 
-	slat::cache::flush_all();
+	cache::flush_all();
 }
 
 void slat::hook::remove(const phys_addr gpa) noexcept
@@ -78,12 +78,10 @@ void slat::hook::remove(const phys_addr gpa) noexcept
 			if (entry.gpa != gpa)
 				return false;
 
-			auto* orig_pte = find_leaf(cr3::hyperv_cr3, gpa);
-			if (orig_pte)
+			if (auto* orig_pte = find_leaf(cr3::hyperv_cr3, gpa))
 				arch::slat_set_perm(*orig_pte, page_perm::rwx);
 
-			auto* shadow_pte = find_leaf(cr3::shadow_cr3, gpa);
-			if (shadow_pte)
+			if (auto* shadow_pte = find_leaf(cr3::shadow_cr3, gpa))
 			{
 				shadow_pte->page_frame_number = entry.original_hpa >> page_shift;
 				arch::slat_set_perm(*shadow_pte, page_perm::rwx);
@@ -93,5 +91,5 @@ void slat::hook::remove(const phys_addr gpa) noexcept
 		});
 	}
 
-	slat::cache::flush_all();
+	cache::flush_all();
 }
