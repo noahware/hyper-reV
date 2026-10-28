@@ -1,6 +1,7 @@
 #include "first.hpp"
 #include "../../mem/map.hpp"
 #include "../../vcpu/vcpu.hpp"
+#include "../../slat/slat.hpp"
 
 #include <atomic.hpp>
 #include <boot_info.hpp>
@@ -46,5 +47,5 @@ void vmexit::first::handle_non_bsp()
 	if (handled.exchange(true))
 		return;
 
-	// todo: hide heap memory from guest
+	slat::init();
 }
