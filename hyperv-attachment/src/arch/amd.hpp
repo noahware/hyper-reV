@@ -82,36 +82,39 @@ struct amd
 
 	static void slat_set_table_pde(slat_pde& entry, std::uint64_t child_pfn)
 	{
-		entry.flags = 0;
-		entry.present    = 1;
-		entry.write      = 1;
-		entry.supervisor = 1;
-		entry.page_frame_number = child_pfn;
+		slat_pde tmp{};
+		tmp.present    = 1;
+		tmp.write      = 1;
+		tmp.supervisor = 1;
+		tmp.page_frame_number = child_pfn;
+		entry.flags = tmp.flags;
 	}
 
 	static void slat_set_table_pdpte(slat_pdpte& entry, std::uint64_t child_pfn)
 	{
-		entry.flags = 0;
-		entry.present    = 1;
-		entry.write      = 1;
-		entry.supervisor = 1;
-		entry.page_frame_number = child_pfn;
+		slat_pdpte tmp{};
+		tmp.present    = 1;
+		tmp.write      = 1;
+		tmp.supervisor = 1;
+		tmp.page_frame_number = child_pfn;
+		entry.flags = tmp.flags;
 	}
 
 	static void slat_init_merge_pde(slat_pde_2mb& large, const slat_pte& pte)
 	{
-		large.flags = 0;
-		large.execute_disable          = pte.execute_disable;
-		large.present                  = pte.present;
-		large.write                    = pte.write;
-		large.supervisor               = pte.supervisor;
-		large.page_level_write_through = pte.page_level_write_through;
-		large.page_level_cache_disable = pte.page_level_cache_disable;
-		large.global                   = pte.global;
-		large.pat                      = pte.pat;
-		large.protection_key           = pte.protection_key;
-		large.page_frame_number        = pte.page_frame_number >> 9;
-		large.large_page               = 1;
+		slat_pde_2mb tmp{};
+		tmp.execute_disable          = pte.execute_disable;
+		tmp.present                  = pte.present;
+		tmp.write                    = pte.write;
+		tmp.supervisor               = pte.supervisor;
+		tmp.page_level_write_through = pte.page_level_write_through;
+		tmp.page_level_cache_disable = pte.page_level_cache_disable;
+		tmp.global                   = pte.global;
+		tmp.pat                      = pte.pat;
+		tmp.protection_key           = pte.protection_key;
+		tmp.page_frame_number        = pte.page_frame_number >> 9;
+		tmp.large_page               = 1;
+		large.flags = tmp.flags;
 	}
 
 	static void init(const boot_info& bi);

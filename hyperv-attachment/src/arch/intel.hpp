@@ -90,39 +90,42 @@ struct intel
 
 	static void slat_set_table_pde(slat_pde& entry, std::uint64_t child_pfn)
 	{
-		entry.flags = 0;
-		entry.read_access     = 1;
-		entry.write_access    = 1;
-		entry.execute_access  = 1;
-		entry.user_mode_execute = 1;
-		entry.page_frame_number = child_pfn;
+		slat_pde tmp{};
+		tmp.read_access       = 1;
+		tmp.write_access      = 1;
+		tmp.execute_access    = 1;
+		tmp.user_mode_execute = 1;
+		tmp.page_frame_number = child_pfn;
+		entry.flags = tmp.flags;
 	}
 
 	static void slat_set_table_pdpte(slat_pdpte& entry, std::uint64_t child_pfn)
 	{
-		entry.flags = 0;
-		entry.read_access     = 1;
-		entry.write_access    = 1;
-		entry.execute_access  = 1;
-		entry.user_mode_execute = 1;
-		entry.page_frame_number = child_pfn;
+		slat_pdpte tmp{};
+		tmp.read_access       = 1;
+		tmp.write_access      = 1;
+		tmp.execute_access    = 1;
+		tmp.user_mode_execute = 1;
+		tmp.page_frame_number = child_pfn;
+		entry.flags = tmp.flags;
 	}
 
 	static void slat_init_merge_pde(slat_pde_2mb& large, const slat_pte& pte)
 	{
-		large.flags = 0;
-		large.read_access            = pte.read_access;
-		large.write_access           = pte.write_access;
-		large.execute_access         = pte.execute_access;
-		large.memory_type            = pte.memory_type;
-		large.ignore_pat             = pte.ignore_pat;
-		large.user_mode_execute      = pte.user_mode_execute;
-		large.verify_guest_paging    = pte.verify_guest_paging;
-		large.paging_write_access    = pte.paging_write_access;
-		large.supervisor_shadow_stack = pte.supervisor_shadow_stack;
-		large.suppress_ve            = pte.suppress_ve;
-		large.page_frame_number      = pte.page_frame_number >> 9;
-		large.large_page             = 1;
+		slat_pde_2mb tmp{};
+		tmp.read_access            = pte.read_access;
+		tmp.write_access           = pte.write_access;
+		tmp.execute_access         = pte.execute_access;
+		tmp.memory_type            = pte.memory_type;
+		tmp.ignore_pat             = pte.ignore_pat;
+		tmp.user_mode_execute      = pte.user_mode_execute;
+		tmp.verify_guest_paging    = pte.verify_guest_paging;
+		tmp.paging_write_access    = pte.paging_write_access;
+		tmp.supervisor_shadow_stack = pte.supervisor_shadow_stack;
+		tmp.suppress_ve            = pte.suppress_ve;
+		tmp.page_frame_number      = pte.page_frame_number >> 9;
+		tmp.large_page             = 1;
+		large.flags = tmp.flags;
 	}
 
 	static void init(const boot_info&) {}
