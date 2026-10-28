@@ -25,6 +25,13 @@ std::size_t vcpu::curr_id()
 	return __readgsdword(curr_cpu_id_gs_off);
 }
 
+bool vcpu::is_bsp()
+{
+	constexpr std::size_t bsp_id = 0;
+
+	return curr_id() == bsp_id;
+}
+
 vcpu& vcpu::curr()
 {
 	return vcpus[curr_id()];

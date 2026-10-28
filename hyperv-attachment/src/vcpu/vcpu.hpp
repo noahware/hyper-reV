@@ -11,5 +11,6 @@ public:
 
 	static std::size_t count();
 	static std::size_t curr_id();
+	static bool is_bsp();
 	static vcpu& curr();
 };

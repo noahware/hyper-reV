@@ -1,5 +1,6 @@
 #include "vmexit.hpp"
 #include "hypercall/hypercall.hpp"
+#include "../vcpu/vcpu.hpp"
 #include "../arch/current.hpp"
 #include "../mem/map.hpp"
 #include <boot_info.hpp>
@@ -28,6 +29,20 @@ namespace
 			return;
 
 		wipe_boot_img();
+	}
+
+	void handle_first_non_bsp_vmexit() noexcept
+	{
+		static cstd::atomic<bool> handled;
+
+		if (handled.load() == true)
+			return;
+
+		if (vcpu::is_bsp())
+			return;
+
+		if (handled.exchange(true))
+			return;
 
 		// todo: hide heap memory from guest
 	}
@@ -54,6 +69,7 @@ std::uint64_t vmexit::detour(const std::uint64_t a1, const std::uint64_t a2,
                               const std::uint64_t a3, const std::uint64_t a4)
 {
 	handle_first_vmexit();
+	handle_first_non_bsp_vmexit();
 
 	guest_regs regs = arch::guest_regs(a1, a2);
 
