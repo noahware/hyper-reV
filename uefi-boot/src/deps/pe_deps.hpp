@@ -2,6 +2,7 @@
 #include <cstddef>
 #include <cstdint>
 
+#include <array.hpp>
 #include <span.hpp>
 #include <vector.hpp>
 #include <string_view.hpp>
@@ -14,6 +15,9 @@ namespace pe
 {
 	template <class T>
 	using span_t = cstd::span<T>;
+
+	template <class T, std::size_t N>
+	using array_t = cstd::array<T, N>;
 
 	template <class T>
 	using vector_t = cstd::vector<T>;
