@@ -36,3 +36,8 @@ vcpu& vcpu::curr()
 {
 	return vcpus[curr_id()];
 }
+
+vcpu& vcpu::get(const std::size_t id)
+{
+	return vcpus[id];
+}
