@@ -1,6 +1,7 @@
 #pragma once
 #include "../../arch/defs.hpp"
 #include <list.hpp>
+#include <mutex.hpp>
 
 namespace slat::hook
 {
@@ -12,4 +13,5 @@ namespace slat::hook
 	};
 
 	inline cstd::single_linked_list<info> list;
+	inline cstd::shared_mutex mtx;
 }

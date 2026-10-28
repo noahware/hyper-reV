@@ -40,6 +40,8 @@ namespace
 
 void slat::hook::add(const phys_addr gpa, const phys_addr shadow_hpa) noexcept
 {
+	cstd::lock_guard guard(hook::mtx);
+
 	if (list.empty())
 		cr3::first_hook();
 
@@ -63,6 +65,8 @@ void slat::hook::add(const phys_addr gpa, const phys_addr shadow_hpa) noexcept
 
 void slat::hook::remove(const phys_addr gpa) noexcept
 {
+	cstd::lock_guard guard(hook::mtx);
+
 	list.remove_if([gpa](const info& entry)
 	{
 		if (entry.gpa != gpa)

@@ -22,6 +22,8 @@ bool slat::violation::handle() noexcept
 		return true;
 	}
 
+	cstd::shared_lock guard(hook::mtx);
+
 	for (const auto& hook : hook::list)
 	{
 		if ((hook.gpa & ~page_mask) != page_gpa)
