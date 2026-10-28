@@ -66,6 +66,9 @@
     <ClCompile Include="src\vmexit\hypercall\hypercall.cpp" />
     <ClCompile Include="src\vmexit\first\first.cpp" />
     <ClCompile Include="src\vmexit\vmexit.cpp" />
+    <ClCompile Include="src\slat\cr3\cr3.cpp" />
+    <ClCompile Include="src\slat\cr3\deep_copy.cpp" />
+    <ClCompile Include="src\slat\hook\hook.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\arch\amd.hpp" />
@@ -85,6 +88,11 @@
     <ClInclude Include="src\vmexit\hypercall\hypercall.hpp" />
     <ClInclude Include="src\vmexit\first\first.hpp" />
     <ClInclude Include="src\vmexit\vmexit.hpp" />
+    <ClInclude Include="src\slat\slat.hpp" />
+    <ClInclude Include="src\slat\cr3\cr3.hpp" />
+    <ClInclude Include="src\slat\cr3\deep_copy.hpp" />
+    <ClInclude Include="src\slat\hook\hook.hpp" />
+    <ClInclude Include="src\slat\hook\info.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
