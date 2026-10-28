@@ -1,8 +1,8 @@
 #pragma once
 #include "../efi/status.hpp"
-#include <pe/image.hpp>
+#include <cstdint>
 
 namespace hyperv
 {
-	efi::status place_hooks(pe::image* img);
+	efi::status place_hooks(void* entry_point);
 }
