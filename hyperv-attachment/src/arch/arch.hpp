@@ -26,6 +26,11 @@ concept arch_backend = requires(const boot_info& bi, typename T::slat_pte pte) {
 	typename T::slat_pml4e;
 	{ T::set_slat_pte_perm(pte, page_perm{}) } -> cstd::same_as<void>;
 
+	{ T::slat_is_present(typename T::slat_pte{})   } -> cstd::same_as<bool>;
+	{ T::slat_is_present(typename T::slat_pde{})    } -> cstd::same_as<bool>;
+	{ T::slat_is_present(typename T::slat_pdpte{})  } -> cstd::same_as<bool>;
+	{ T::slat_is_present(typename T::slat_pml4e{})  } -> cstd::same_as<bool>;
+
 	{ T::slat_cr3()               } -> cstd::same_as<::cr3>;
 	{ T::set_slat_cr3(::cr3{})    } -> cstd::same_as<void>;
 	{ T::flush_slat_cache()       } -> cstd::same_as<void>;

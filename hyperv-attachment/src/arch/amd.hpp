@@ -9,6 +9,13 @@ struct amd
 	using slat_pdpte = pdpte_64;
 	using slat_pml4e = pml4e_64;
 
+	template <typename T>
+		requires requires(const T e) { e.present; e.flags; }
+	static bool slat_is_present(const T& entry)
+	{
+		return entry.present;
+	}
+
 	static void set_slat_pte_perm(pte_64& pte, const page_perm perm)
 	{
 		pte.present    = (perm & page_perm::read) != page_perm::none;

@@ -15,6 +15,13 @@ struct intel
 	using slat_pdpte = ept_pdpte;
 	using slat_pml4e = ept_pml4e;
 
+	template <typename T>
+		requires requires(const T e) { e.read_access; e.flags; }
+	static bool slat_is_present(const T& entry)
+	{
+		return entry.read_access || entry.write_access || entry.execute_access;
+	}
+
 	static void set_slat_pte_perm(ept_pte& pte, const page_perm perm)
 	{
 		pte.read_access    = (perm & page_perm::read) != page_perm::none;
