@@ -10,7 +10,7 @@ namespace
 		hc::info i;
 
 		i.key = hc::allowed_key;
-		i.type = hc::type::test;
+		i.type = type;
 
 		return send_hypercall(i);
 	}
@@ -19,4 +19,9 @@ namespace
 std::uint64_t hc::test() noexcept
 {
 	return send(type::test);
+}
+
+std::uint64_t hc::curr_cr3() noexcept
+{
+	return send(type::curr_cr3);
 }

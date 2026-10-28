@@ -1,4 +1,5 @@
 #include "hypercall.hpp"
+#include "../../arch/current.hpp"
 #include <hypercall.hpp>
 
 bool hc::handle(guest_regs& regs)
@@ -12,6 +13,11 @@ bool hc::handle(guest_regs& regs)
 	{
 	case type::test:
 		regs.rax = 0x1337;
+
+		return true;
+
+	case type::curr_cr3:
+		regs.rax = arch::guest_cr3().flags;
 
 		return true;
 	}

@@ -6,7 +6,8 @@ namespace hc
 
 	enum class type : std::uint64_t
 	{
-		test
+		test,
+		curr_cr3
 	};
 
 	union info

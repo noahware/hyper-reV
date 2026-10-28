@@ -55,6 +55,8 @@ struct intel
 		set_rip(rip() + vmread(VMCS_VMEXIT_INSTRUCTION_LENGTH));
 	}
 
+	static std::uint64_t guest_cr3() { return vmread(VMCS_GUEST_CR3); }
+
 	static exit_reason exit_reason()
 	{
 		switch (vmread(VMCS_EXIT_REASON) & 0xFFFF)

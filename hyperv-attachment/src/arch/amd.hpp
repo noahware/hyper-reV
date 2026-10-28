@@ -30,6 +30,8 @@ struct amd
 		vmcb()->save_state.rip = vmcb()->control.next_rip;
 	}
 
+	static cr3 guest_cr3() { return cr3{ .flags = vmcb()->save_state.cr3 }; }
+
 	static exit_reason exit_reason()
 	{
 		switch (vmcb()->control.vmexit_reason)
