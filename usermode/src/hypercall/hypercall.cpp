@@ -67,3 +67,24 @@ std::uintptr_t hc::translate_va(const std::uint64_t cr3, const std::uintptr_t va
 
 	return send(p);
 }
+
+bool hc::hook_add(const std::uintptr_t target_gpa, const std::uintptr_t shadow_gpa) noexcept
+{
+	params p{};
+	p.info.key = allowed_key;
+	p.info.type = type::hook_add;
+	p.args[0] = target_gpa;
+	p.args[1] = shadow_gpa;
+
+	return send(p);
+}
+
+bool hc::hook_remove(const std::uintptr_t target_gpa) noexcept
+{
+	params p{};
+	p.info.key = allowed_key;
+	p.info.type = type::hook_remove;
+	p.args[0] = target_gpa;
+
+	return send(p);
+}

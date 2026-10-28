@@ -10,7 +10,9 @@ namespace hc
 		curr_cr3,
 		phys_mem_op,
 		virt_mem_op,
-		translate_va
+		translate_va,
+		hook_add,
+		hook_remove
 	};
 
 	union info

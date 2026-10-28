@@ -15,4 +15,7 @@ namespace hc
 	               std::uint64_t size) noexcept;
 
 	std::uintptr_t translate_va(std::uint64_t cr3, std::uintptr_t va) noexcept;
+
+	bool hook_add(std::uintptr_t target_gpa, std::uintptr_t shadow_gpa) noexcept;
+	bool hook_remove(std::uintptr_t target_gpa) noexcept;
 }

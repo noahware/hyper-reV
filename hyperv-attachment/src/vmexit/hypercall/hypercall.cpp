@@ -1,6 +1,9 @@
 #include "hypercall.hpp"
 #include "../../arch/current.hpp"
 #include "../../mem/guest.hpp"
+#include "../../mem/mem.hpp"
+#include "../../slat/cr3/cr3.hpp"
+#include "../../slat/hook/hook.hpp"
 #include <hypercall.hpp>
 
 bool hc::handle(guest_regs& regs)
@@ -53,6 +56,32 @@ bool hc::handle(guest_regs& regs)
 		const auto va = static_cast<std::uintptr_t>(regs.r8);
 
 		regs.rax = mem::guest::translate_va(target_cr3, va);
+
+		return true;
+	}
+
+	case type::hook_add:
+	{
+		const phys_addr target_gpa = regs.rdx;
+		const phys_addr shadow_gpa = regs.r8;
+
+		const auto shadow_hpa = mem::translate_va(slat::cr3::hyperv_cr3, shadow_gpa);
+		if (!shadow_hpa)
+		{
+			regs.rax = 0;
+			return true;
+		}
+
+		regs.rax = slat::hook::add(target_gpa & ~page_mask, shadow_hpa & ~page_mask);
+
+		return true;
+	}
+
+	case type::hook_remove:
+	{
+		const phys_addr target_gpa = regs.rdx;
+
+		regs.rax = slat::hook::remove(target_gpa & ~page_mask);
 
 		return true;
 	}
