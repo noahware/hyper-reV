@@ -14,71 +14,52 @@ namespace
 		return page;
 	}
 
-	void copy_pt(const arch::slat_pte* src, arch::slat_pte* dest) noexcept
+	template <typename Entry>
+	void copy_level(const Entry* src, Entry* dest) noexcept
 	{
 		for (std::size_t i = 0; i < paging_entry_count; i++)
 		{
-			dest[i].flags = src[i].flags;
+			auto& dest_ent = dest[i];
+			dest_ent.flags = src[i].flags;
 
-			if (arch::slat_is_present(dest[i]))
+			if (arch::slat_is_present(dest_ent))
 			{
-				const auto perm = arch::slat_perm(dest[i]) & ~page_perm::execute;
-				arch::slat_set_perm(dest[i], perm);
+				const auto perm = arch::slat_perm(dest_ent) & ~page_perm::execute;
+				arch::slat_set_perm(dest_ent, perm);
 			}
 		}
 	}
 
-	void copy_pd(const arch::slat_pde* src, arch::slat_pde* dest) noexcept
+	template <typename Entry, typename Child, typename... Rest>
+	void copy_level(const Entry* src, Entry* dest) noexcept
 	{
 		for (std::size_t i = 0; i < paging_entry_count; i++)
 		{
-			dest[i].flags = src[i].flags;
+			const auto& src_ent = src[i];
+			auto& dest_ent = dest[i];
 
-			if (!arch::slat_is_present(src[i]))
+			dest_ent.flags = src_ent.flags;
+
+			if (!arch::slat_is_present(src_ent))
 				continue;
 
-			if (!arch::slat_is_large(src[i]))
+			if constexpr (requires(const Entry& e) { arch::slat_is_large(e); })
 			{
-				const auto* src_pt = mem::map_phys<const arch::slat_pte*>(
-					src[i].page_frame_number << page_shift);
-				auto* dest_pt = alloc_slat_page<arch::slat_pte>();
-
-				dest[i].page_frame_number = mem::unmap_phys(dest_pt) >> page_shift;
-
-				copy_pt(src_pt, dest_pt);
+				if (arch::slat_is_large(src_ent))
+				{
+					const auto perm = arch::slat_perm(dest_ent) & ~page_perm::execute;
+					arch::slat_set_perm(dest_ent, perm);
+					continue;
+				}
 			}
-			else
-			{
-				const auto perm = arch::slat_perm(dest[i]) & ~page_perm::execute;
-				arch::slat_set_perm(dest[i], perm);
-			}
-		}
-	}
 
-	void copy_pdpt(const arch::slat_pdpte* src, arch::slat_pdpte* dest) noexcept
-	{
-		for (std::size_t i = 0; i < paging_entry_count; i++)
-		{
-			dest[i].flags = src[i].flags;
+			const auto* src_child = mem::map_phys<const Child*>(
+				src_ent.page_frame_number << page_shift);
+			auto* dest_child = alloc_slat_page<Child>();
 
-			if (!arch::slat_is_present(src[i]))
-				continue;
+			dest_ent.page_frame_number = mem::pfn_for_map(dest_child);
 
-			if (!arch::slat_is_large(src[i]))
-			{
-				const auto* src_pd = mem::map_phys<const arch::slat_pde*>(
-					src[i].page_frame_number << page_shift);
-				auto* dest_pd = alloc_slat_page<arch::slat_pde>();
-
-				dest[i].page_frame_number = mem::unmap_phys(dest_pd) >> page_shift;
-
-				copy_pd(src_pd, dest_pd);
-			}
-			else
-			{
-				const auto perm = arch::slat_perm(dest[i]) & ~page_perm::execute;
-				arch::slat_set_perm(dest[i], perm);
-			}
+			copy_level<Child, Rest...>(src_child, dest_child);
 		}
 	}
 }
@@ -86,19 +67,6 @@ namespace
 void slat::cr3::deep_copy(const arch::slat_pml4e* const src_pml4,
                            arch::slat_pml4e* const dest_pml4) noexcept
 {
-	for (std::size_t i = 0; i < paging_entry_count; i++)
-	{
-		dest_pml4[i].flags = src_pml4[i].flags;
-
-		if (!arch::slat_is_present(src_pml4[i]))
-			continue;
-
-		const auto* src_pdpt = mem::map_phys<const arch::slat_pdpte*>(
-			src_pml4[i].page_frame_number << page_shift);
-		auto* dest_pdpt = alloc_slat_page<arch::slat_pdpte>();
-
-		dest_pml4[i].page_frame_number = mem::unmap_phys(dest_pdpt) >> page_shift;
-
-		copy_pdpt(src_pdpt, dest_pdpt);
-	}
+	copy_level<arch::slat_pml4e, arch::slat_pdpte, arch::slat_pde, arch::slat_pte>(
+		src_pml4, dest_pml4);
 }
