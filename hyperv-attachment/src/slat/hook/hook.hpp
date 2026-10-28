@@ -3,6 +3,6 @@
 
 namespace slat::hook
 {
-	void add(phys_addr gpa, phys_addr shadow_hpa) noexcept;
-	void remove(phys_addr gpa) noexcept;
+	bool add(phys_addr gpa, phys_addr shadow_hpa) noexcept;
+	bool remove(phys_addr gpa) noexcept;
 }

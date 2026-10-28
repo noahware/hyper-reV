@@ -23,7 +23,7 @@ namespace
 	}
 }
 
-void slat::hook::add(const phys_addr gpa, const phys_addr shadow_hpa) noexcept
+bool slat::hook::add(const phys_addr gpa, const phys_addr shadow_hpa) noexcept
 {
 	{
 		cstd::lock_guard guard(hook::mtx);
@@ -33,11 +33,11 @@ void slat::hook::add(const phys_addr gpa, const phys_addr shadow_hpa) noexcept
 
 		auto* orig_pte = cr3::find_split_leaf(cr3::hyperv_cr3, gpa);
 		if (!orig_pte)
-			return;
+			return false;
 
 		auto* shadow_pte = cr3::find_split_leaf(cr3::shadow_cr3, gpa);
 		if (!shadow_pte)
-			return;
+			return false;
 
 		const auto original_hpa = orig_pte->page_frame_number << page_shift;
 
@@ -50,17 +50,22 @@ void slat::hook::add(const phys_addr gpa, const phys_addr shadow_hpa) noexcept
 	}
 
 	cache::flush_all();
+	return true;
 }
 
-void slat::hook::remove(const phys_addr gpa) noexcept
+bool slat::hook::remove(const phys_addr gpa) noexcept
 {
+	bool found = false;
+
 	{
 		cstd::lock_guard guard(hook::mtx);
 
-		list.remove_if([gpa](const info& entry)
+		list.remove_if([gpa, &found](const info& entry)
 		{
 			if (entry.gpa != gpa)
 				return false;
+
+			found = true;
 
 			if (auto* orig_pte = cr3::find_split_leaf(cr3::hyperv_cr3, gpa))
 				arch::slat_set_perm(*orig_pte, page_perm::rwx);
@@ -74,12 +79,15 @@ void slat::hook::remove(const phys_addr gpa) noexcept
 			return true;
 		});
 
-		if (!hook_in_merge_range(gpa))
+		if (found && !hook_in_merge_range(gpa))
 		{
 			cr3::merge(cr3::hyperv_cr3, gpa);
 			cr3::merge(cr3::shadow_cr3, gpa);
 		}
 	}
 
-	cache::flush_all();
+	if (found)
+		cache::flush_all();
+
+	return found;
 }
