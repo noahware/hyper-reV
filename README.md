@@ -132,25 +132,8 @@ The hook SLAT CR3 is explained 4.5.3.3. It is the SLAT CR3 that the hyperv-attac
 The SLAT [code hooks](https://stackoverflow.com/questions/467557/what-is-meant-by-the-term-hook-in-programming) were implemented as follows:
 
 ## 4.5.1. Code hooks on Intel
-![Intel SLAT violation flowchart](images/intel_slat_violation.png)
 
-There is only 1 pointer (Intel's SLAT CR3), shared by all logical processors in Hyper-V.
-
-The current core's EPT pointer changes between the hook SLAT CR3 and the Hyper-V SLAT CR3 in the EPT violation handler as needed. This is because both these SLAT CR3s hold mappings for the target page, but with different permissions.
-
-When a hook is added, the following happens to the target page:
-  - The page is made --x (non readable, non writable, but is executable) in the Hyper-V SLAT CR3.
-  - The page's page frame number is set to that of the shadow page in the Hyper-V SLAT CR3.
-  - The page is made rw- (is readable, is writable, but non executable) in the hook SLAT CR3.
-  - The page's page frame number is set to that of the original page in the hook SLAT CR3.
-
-When the target page is executed under the Hyper-V SLAT CR3, the shadow page is executed. No reads or writes can occur to the target page either, as the permission is --x.
-
-Now if a read or write occurs in the guest to the hooked page, an EPT violation will be raised. In the EPT violation handler, the current core's EPT pointer is set to the hook SLAT CR3. This means that the target page can now be read/written to, but just under the original page frame number (so the contents of the shadow page are hidden).
-
-In case of execution of the page again, these changes reversed and vice versa.
-
-This is very performant as EPT violations only occur when the permissions of the page require to be changed.
+See AMD code hooks section (4.5.2.). The recode does it in the same way as AMD. This is better as it evades detection from specific checks even though it has a performance hit.
 
 ## 4.5.2. Code hooks on AMD
 ![AMD SLAT violation flowchart](images/amd_slat_violation.png)
