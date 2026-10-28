@@ -7,7 +7,10 @@ namespace hc
 	enum class type : std::uint64_t
 	{
 		test,
-		curr_cr3
+		curr_cr3,
+		phys_mem_op,
+		virt_mem_op,
+		translate_va
 	};
 
 	union info
@@ -19,5 +22,11 @@ namespace hc
 			type type : 16;
 			std::uint64_t key : 48;
 		};
+	};
+
+	struct params
+	{
+		info info;
+		std::uint64_t args[5];
 	};
 }
