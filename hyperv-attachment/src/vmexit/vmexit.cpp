@@ -4,6 +4,7 @@
 #include "../vcpu/vcpu.hpp"
 #include "../arch/current.hpp"
 #include "../slat/violation/violation.hpp"
+#include "../intr/nmi.hpp"
 #include <boot_info.hpp>
 #include <crt.hpp>
 
@@ -21,6 +22,9 @@ namespace
 			return hc::handle(regs);
 		case exit_reason::slat_violation:
 			return slat::violation::handle();
+		case exit_reason::nmi:
+			intr::nmi::process();
+			return true;
 		default:
 			return false;
 		}
