@@ -36,9 +36,9 @@ bool hc::handle(guest_regs& regs)
 	case type::virt_mem_op:
 	{
 		const ::cr3 src_cr3{ .flags = regs.rdx };
-		const virt_addr src_va{ .val = regs.r8 };
+		const auto src_va = static_cast<std::uintptr_t>(regs.r8);
 		const ::cr3 dest_cr3{ .flags = regs.r9 };
-		const virt_addr dest_va{ .val = regs.r10 };
+		const auto dest_va = static_cast<std::uintptr_t>(regs.r10);
 		const auto size = regs.r11;
 
 		regs.rax = mem::guest::copy_virt(src_cr3, src_va,
@@ -50,7 +50,7 @@ bool hc::handle(guest_regs& regs)
 	case type::translate_va:
 	{
 		const ::cr3 target_cr3{ .flags = regs.rdx };
-		const virt_addr va{ .val = regs.r8 };
+		const auto va = static_cast<std::uintptr_t>(regs.r8);
 
 		regs.rax = mem::guest::translate_va(target_cr3, va);
 

@@ -28,7 +28,7 @@ std::uint64_t hc::curr_cr3() noexcept
 	return send(p);
 }
 
-bool hc::phys_copy(const std::uint64_t src_phys, const std::uint64_t dest_phys,
+bool hc::phys_copy(const std::uintptr_t src_phys, const std::uintptr_t dest_phys,
                     const std::uint64_t size) noexcept
 {
 	params p{};
@@ -41,8 +41,8 @@ bool hc::phys_copy(const std::uint64_t src_phys, const std::uint64_t dest_phys,
 	return send(p);
 }
 
-bool hc::virt_copy(const std::uint64_t src_cr3, const std::uint64_t src_va,
-                    const std::uint64_t dest_cr3, const std::uint64_t dest_va,
+bool hc::virt_copy(const std::uint64_t src_cr3, const std::uintptr_t src_va,
+                    const std::uint64_t dest_cr3, const std::uintptr_t dest_va,
                     const std::uint64_t size) noexcept
 {
 	params p{};
@@ -57,7 +57,7 @@ bool hc::virt_copy(const std::uint64_t src_cr3, const std::uint64_t src_va,
 	return send(p);
 }
 
-std::uint64_t hc::translate_va(const std::uint64_t cr3, const std::uint64_t va) noexcept
+std::uintptr_t hc::translate_va(const std::uint64_t cr3, const std::uintptr_t va) noexcept
 {
 	params p{};
 	p.info.key = allowed_key;

@@ -61,6 +61,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\mem\alloc\page.cpp" />
     <ClCompile Include="src\mem\alloc\slab.cpp" />
+    <ClCompile Include="src\mem\guest.cpp" />
     <ClCompile Include="src\vcpu\vcpu.cpp" />
     <ClCompile Include="src\vmexit\hypercall\hypercall.cpp" />
     <ClCompile Include="src\vmexit\first\first.cpp" />
@@ -77,6 +78,7 @@
     <ClInclude Include="src\arch\intel.hpp" />
     <ClInclude Include="src\mem\alloc\page.hpp" />
     <ClInclude Include="src\mem\alloc\slab.hpp" />
+    <ClInclude Include="src\mem\guest.hpp" />
     <ClInclude Include="src\mem\map.hpp" />
     <ClInclude Include="src\vcpu\vcpu.hpp" />
     <ClInclude Include="src\vmexit\hypercall\hypercall.hpp" />
