@@ -1,6 +1,7 @@
 #include "dump.hpp"
 #include "kernel.hpp"
 #include "../arch/arch.hpp"
+#include "../util/file.hpp"
 
 #include <cstring>
 
@@ -31,4 +32,25 @@ sys::dump::img_dump sys::dump::run(const std::uintptr_t mod_va, const std::uint6
 	}
 
 	return result;
+}
+
+void sys::dump::img_dump::fix_sections() noexcept
+{
+	for (auto& section : (*this)->sections())
+	{
+		section.pointer_to_raw_data = section.virtual_address;
+		section.size_of_raw_data = section.virtual_size;
+	}
+}
+
+bool sys::dump::to_disk(const std::string_view path, const std::uintptr_t mod_va, const std::uint64_t cr3) noexcept
+{
+	auto image = run(mod_va, cr3);
+
+	if (!image)
+		return false;
+
+	image.fix_sections();
+
+	return util::file::write(path, image.data);
 }

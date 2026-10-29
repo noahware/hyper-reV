@@ -2,6 +2,7 @@
 #include "alias.hpp"
 
 #include "../hypercall/hypercall.hpp"
+#include "../sys/dump.hpp"
 #include "../sys/kernel.hpp"
 #include "../util/log.hpp"
 
@@ -343,9 +344,25 @@ namespace
 		return dkm;
 	}
 
-	void process_dkm(const CLI::App* const /*dkm*/)
+	void process_dkm(const CLI::App* const dkm)
 	{
-		LOG_ERR("dkm: fs writer not implemented in this build");
+		const auto name = GET_STR(dkm, module_name);
+		const auto out_dir = GET_STR(dkm, output_directory);
+
+		const auto it = sys::kern::modules_list.find(name);
+
+		if (it == sys::kern::modules_list.end())
+		{
+			LOG_ERR("module not found");
+			return;
+		}
+
+		const auto path = out_dir + "\\dump_" + name;
+
+		if (sys::dump::to_disk(path, it->second.base))
+			LOG_INFO("dumped to '{}'", path);
+		else
+			LOG_ERR("failed to dump to '{}'", path);
 	}
 
 	CLI::App* init_gva(CLI::App& app, const CLI::Transformer& xf)

@@ -4,6 +4,7 @@
 #include <pe/image.hpp>
 
 #include <cstdint>
+#include <string_view>
 #include <vector>
 
 namespace sys::dump
@@ -36,7 +37,13 @@ namespace sys::dump
 		{
 			return !data.empty();
 		}
+
+		// Patch section headers so disk-view PE tools accept the mapped-layout dump.
+		void fix_sections() noexcept;
 	};
 
 	img_dump run(std::uintptr_t mod_va, std::uint64_t cr3 = kern::curr_cr3) noexcept;
+
+	// Dump → fix_sections → write. Returns false if any step fails.
+	bool to_disk(std::string_view path, std::uintptr_t mod_va, std::uint64_t cr3 = kern::curr_cr3) noexcept;
 }
