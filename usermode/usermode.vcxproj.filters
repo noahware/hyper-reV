@@ -24,15 +24,33 @@
     <ClCompile Include="src\cmd\cmd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\sys\kernel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sys\dump.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\util\log.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\arch\arch.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\hypercall\hypercall.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\cmd\cmd.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sys\kernel.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sys\sys.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sys\dump.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

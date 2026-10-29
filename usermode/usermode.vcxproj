@@ -72,7 +72,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)shared;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)shared;$(SolutionDir)vendor\pe\include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)\build\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\build\$(Configuration)\obj\$(TargetName)\</IntDir>
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
@@ -80,7 +80,7 @@
     <VcpkgTriplet>x64-windows-static</VcpkgTriplet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)shared;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)shared;$(SolutionDir)vendor\pe\include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)\build\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\build\$(Configuration)\obj\$(TargetName)\</IntDir>
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
@@ -163,10 +163,16 @@
     <ClCompile Include="src\cmd\cmd.cpp" />
     <ClCompile Include="src\hypercall\hypercall.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\sys\dump.cpp" />
+    <ClCompile Include="src\sys\kernel.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\arch\arch.hpp" />
     <ClInclude Include="src\cmd\cmd.hpp" />
     <ClInclude Include="src\hypercall\hypercall.hpp" />
+    <ClInclude Include="src\sys\dump.hpp" />
+    <ClInclude Include="src\sys\kernel.hpp" />
+    <ClInclude Include="src\sys\sys.hpp" />
     <ClInclude Include="src\util\log.hpp" />
   </ItemGroup>
   <ItemGroup>
