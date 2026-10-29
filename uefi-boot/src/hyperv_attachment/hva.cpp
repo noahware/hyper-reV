@@ -49,7 +49,7 @@ namespace
 
 		const std::uintptr_t delta = hva_base - file_img->base_addr();
 
-		for (const auto reloc : file_img->relocs())
+		for (const auto reloc : virt_img->relocs())
 		{
 			if (reloc.type != pe::reloc_type::dir64)
 				continue;
