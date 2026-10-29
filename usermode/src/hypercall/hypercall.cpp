@@ -59,3 +59,7 @@ bool hc::hook_remove(const std::uintptr_t target_gpa) noexcept
 {
 	return send(type::hook_remove, target_gpa);
 }
+std::size_t hc::rem_heap_size() noexcept
+{
+	return send(type::rem_heap_size);
+}

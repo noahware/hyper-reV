@@ -12,7 +12,8 @@ namespace hc
 		virt_mem_op,
 		translate_va,
 		hook_add,
-		hook_remove
+		hook_remove,
+		rem_heap_size
 	};
 
 	union info

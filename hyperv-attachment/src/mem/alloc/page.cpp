@@ -87,3 +87,9 @@ void mem::page::free(void* const p, const std::size_t n) noexcept
 	cstd::lock_guard lock(mutex);
 	mark_indexes_free(ptr_to_idx(p), n);
 }
+
+std::size_t mem::page::free_count() noexcept
+{
+	cstd::lock_guard lock(mutex);
+	return free_pages.count();
+}

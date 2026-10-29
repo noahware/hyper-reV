@@ -277,6 +277,7 @@ namespace
 	void process_hgpp(const CLI::App* const /*hgpp*/)
 	{
 		LOG_ERR("hgpp: not implemented in this build");
+			LOG_ERR("failed to hide page");
 	}
 
 	CLI::App* init_fl(CLI::App& app)

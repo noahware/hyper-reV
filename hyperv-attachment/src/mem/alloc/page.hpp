@@ -12,4 +12,6 @@ namespace mem::page
 
 	void* alloc(std::size_t n = 1) noexcept;
 	void free(void* p, std::size_t n = 1) noexcept;
+
+	std::size_t free_count() noexcept;
 }

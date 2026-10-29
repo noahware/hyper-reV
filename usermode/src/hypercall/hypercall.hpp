@@ -1,4 +1,5 @@
 #pragma once
+#include <cstddef>
 #include <cstdint>
 #include <hypercall.hpp>
 
@@ -18,4 +19,5 @@ namespace hc
 
 	bool hook_add(std::uintptr_t target_gpa, std::uintptr_t shadow_gpa) noexcept;
 	bool hook_remove(std::uintptr_t target_gpa) noexcept;
+	std::size_t rem_heap_size() noexcept;
 }

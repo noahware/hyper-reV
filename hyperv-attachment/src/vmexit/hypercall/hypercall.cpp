@@ -85,6 +85,12 @@ bool hc::handle(guest_regs& regs)
 
 		return true;
 	}
+	case type::rem_heap_size:
+	{
+		regs.rax = mem::page::free_count() << page_shift;
+
+		return true;
+	}
 	}
 
 	return false;
