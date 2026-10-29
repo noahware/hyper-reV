@@ -2,7 +2,9 @@
 #include "alias.hpp"
 
 #include "../arch/arch.hpp"
+#include "../hook/hook.hpp"
 #include "../hypercall/hypercall.hpp"
+#include "../script/script.hpp"
 #include "../sys/dump.hpp"
 #include "../sys/kernel.hpp"
 #include "../util/log.hpp"
@@ -251,9 +253,25 @@ namespace
 		return akh;
 	}
 
-	void process_akh(const CLI::App* const /*akh*/)
+	void process_akh(const CLI::App* const akh)
 	{
-		LOG_ERR("akh: byte-patch hook model not available in this build (hc:: only exposes page-shadow hook_add/hook_remove)");
+		const auto va          = GET_U64(akh, virtual_address);
+		const auto post        = GET(akh, --post_original_asmbytes, std::vector<std::uint8_t>);
+		const auto script_text = GET_STR(akh, --script_text);
+		const auto script_file = GET_STR(akh, --script_file);
+		const auto monitor     = GET_FLAG(akh, monitor);
+
+		auto pre = GET(akh, --asmbytes, std::vector<std::uint8_t>);
+
+		if (!script_text.empty())
+			pre = script::compile(script_text, cmd::alias::compile());
+		else if (!script_file.empty())
+			pre = script::compile_file(script_file, cmd::alias::compile());
+
+		if (hook::install(va, pre, post, monitor != 0))
+			LOG_INFO("success in hook");
+		else
+			LOG_ERR("failed to hook");
 	}
 
 	CLI::App* init_rkh(CLI::App& app, const CLI::Transformer& xf)
@@ -263,9 +281,14 @@ namespace
 		return rkh;
 	}
 
-	void process_rkh(const CLI::App* const /*rkh*/)
+	void process_rkh(const CLI::App* const rkh)
 	{
-		LOG_ERR("rkh: byte-patch hook model not available in this build");
+		const auto va = GET_U64(rkh, virtual_address);
+
+		if (hook::remove(va))
+			LOG_INFO("success in hook removal");
+		else
+			LOG_ERR("failed to remove hook");
 	}
 
 	CLI::App* init_hgpp(CLI::App& app, const CLI::Transformer& xf)
