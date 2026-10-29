@@ -160,6 +160,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\cmd\alias.cpp" />
     <ClCompile Include="src\cmd\cmd.cpp" />
     <ClCompile Include="src\hypercall\hypercall.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -171,6 +172,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\arch\arch.hpp" />
+    <ClInclude Include="src\cmd\alias.hpp" />
     <ClInclude Include="src\cmd\cmd.hpp" />
     <ClInclude Include="src\hypercall\hypercall.hpp" />
     <ClInclude Include="src\nt\kernel_module.hpp" />

@@ -24,6 +24,9 @@
     <ClCompile Include="src\cmd\cmd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\cmd\alias.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\sys\kernel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -60,6 +63,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\cmd\cmd.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cmd\alias.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\sys\kernel.hpp">
