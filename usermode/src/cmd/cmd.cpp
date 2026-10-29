@@ -14,6 +14,7 @@
 #include <cstdint>
 #include <iostream>
 #include <string>
+#include <vector>
 
 //   SUB(name, desc)       declare a subcommand named `name` on `app`
 //   OPT(cmd, opt)         positional option
@@ -263,10 +264,14 @@ namespace
 
 		auto pre = GET(akh, --asmbytes, std::vector<std::uint8_t>);
 
+		std::vector<std::uint8_t> script_bytes;
+
 		if (!script_text.empty())
-			pre = script::compile(script_text, cmd::alias::compile());
+			script_bytes = script::compile(script_text, cmd::alias::compile());
 		else if (!script_file.empty())
-			pre = script::compile_file(script_file, cmd::alias::compile());
+			script_bytes = script::compile_file(script_file, cmd::alias::compile());
+
+		pre.insert(pre.end(), script_bytes.begin(), script_bytes.end());
 
 		if (hook::install(va, pre, post, monitor != 0))
 			LOG_INFO("success in hook");
