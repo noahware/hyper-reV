@@ -2,6 +2,7 @@
 #include "../../mem/map.hpp"
 #include "../../vcpu/vcpu.hpp"
 #include "../../slat/slat.hpp"
+#include "../../slat/cr3/cr3.hpp"
 #include "../../intr/nmi.hpp"
 
 #include <atomic.hpp>
@@ -52,4 +53,6 @@ void vmexit::first::handle_non_bsp()
 
 	if (handled.exchange(true))
 		return;
+
+	slat::cr3::init_shadow();
 }

@@ -1,6 +1,7 @@
 #include "cmd.hpp"
 #include "alias.hpp"
 
+#include "../arch/arch.hpp"
 #include "../hypercall/hypercall.hpp"
 #include "../sys/dump.hpp"
 #include "../sys/kernel.hpp"
@@ -274,9 +275,13 @@ namespace
 		return hgpp;
 	}
 
-	void process_hgpp(const CLI::App* const /*hgpp*/)
+	void process_hgpp(const CLI::App* const hgpp)
 	{
-		LOG_ERR("hgpp: not implemented in this build");
+		const auto pa = GET_U64(hgpp, physical_address);
+
+		if (hc::hide_page(pa))
+			LOG_INFO("success in hiding page");
+		else
 			LOG_ERR("failed to hide page");
 	}
 
@@ -299,7 +304,7 @@ namespace
 
 	void process_hfpc(const CLI::App* const /*hfpc*/)
 	{
-		LOG_ERR("hfpc: not implemented in this build");
+		LOG_INFO("heap free page count: {}", hc::rem_heap_size() / arch::page_size);
 	}
 
 	CLI::App* init_lkm(CLI::App& app)

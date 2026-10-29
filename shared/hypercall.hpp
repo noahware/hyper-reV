@@ -13,6 +13,7 @@ namespace hc
 		translate_va,
 		hook_add,
 		hook_remove,
+		hide_page,
 		rem_heap_size
 	};
 

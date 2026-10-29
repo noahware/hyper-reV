@@ -1,5 +1,6 @@
 #include "hypercall.hpp"
 #include "../../arch/current.hpp"
+#include "../../mem/alloc/page.hpp"
 #include "../../mem/guest.hpp"
 #include "../../mem/mem.hpp"
 #include "../../slat/cr3/cr3.hpp"
@@ -85,6 +86,16 @@ bool hc::handle(guest_regs& regs)
 
 		return true;
 	}
+
+	case type::hide_page:
+	{
+		const phys_addr target_gpa = regs.rdx;
+
+		regs.rax = slat::hook::hide(target_gpa);
+
+		return true;
+	}
+
 	case type::rem_heap_size:
 	{
 		regs.rax = mem::page::free_count() << page_shift;

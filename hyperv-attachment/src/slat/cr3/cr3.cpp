@@ -8,7 +8,7 @@ void slat::cr3::init() noexcept
 	hyperv = arch::slat_cr3();
 }
 
-void slat::cr3::first_hook() noexcept
+void slat::cr3::init_shadow() noexcept
 {
 	const auto* src_pml4 = mem::map_phys<const arch::slat_pml4e*>(
 		hyperv.address_of_page_directory << page_shift);
