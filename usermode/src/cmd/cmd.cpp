@@ -1,6 +1,8 @@
 #include "cmd.hpp"
+#include "alias.hpp"
 
 #include "../hypercall/hypercall.hpp"
+#include "../sys/kernel.hpp"
 #include "../util/log.hpp"
 
 #include <CLI/CLI.hpp>
@@ -12,6 +14,7 @@
 //   SUB(name, desc)       declare a subcommand named `name` on `app`
 //   OPT(cmd, opt)         positional option
 //   REQ(cmd, opt)         required positional option
+//   TREQ(cmd, opt)        required positional option transformed through `xf` (must be in scope)
 //   LOPT(cmd, opt)        --long option
 //   LFLAG(cmd, opt)       --long flag
 //   VAR_LOPT(cmd, opt)    --long option, variadic (TakeAll)
@@ -24,6 +27,7 @@
 
 #define OPT(cmd, opt)        add_option(cmd, #opt)
 #define REQ(cmd, opt)        add_option(cmd, #opt)->required()
+#define TREQ(cmd, opt)       add_option(cmd, #opt)->required()->transform(xf)
 #define LOPT(cmd, opt)       add_option(cmd, "--" #opt)
 #define LFLAG(cmd, opt)      add_flag(cmd,   "--" #opt)
 #define VAR_LOPT(cmd, opt)   add_option(cmd, "--" #opt)->multi_option_policy(CLI::MultiOptionPolicy::TakeAll)->expected(-1)
@@ -83,10 +87,10 @@ namespace
 		return hc::virt_copy(hc::curr_cr3(), reinterpret_cast<std::uintptr_t>(src), dest_cr3, dest_va, size);
 	}
 
-	CLI::App* init_rgpm(CLI::App& app)
+	CLI::App* init_rgpm(CLI::App& app, const CLI::Transformer& xf)
 	{
 		SUB(rgpm, "reads memory from a given guest physical address");
-		REQ(rgpm, physical_address);
+		TREQ(rgpm, physical_address);
 		REQ(rgpm, size)->check(CLI::Range(0, 8));
 		return rgpm;
 	}
@@ -104,10 +108,10 @@ namespace
 			LOG_ERR("failed to read");
 	}
 
-	CLI::App* init_wgpm(CLI::App& app)
+	CLI::App* init_wgpm(CLI::App& app, const CLI::Transformer& xf)
 	{
 		SUB(wgpm, "writes memory to a given guest physical address");
-		REQ(wgpm, physical_address);
+		TREQ(wgpm, physical_address);
 		REQ(wgpm, value);
 		REQ(wgpm, size)->check(CLI::Range(0, 8));
 		return wgpm;
@@ -125,11 +129,11 @@ namespace
 			LOG_ERR("failed to write");
 	}
 
-	CLI::App* init_cgpm(CLI::App& app)
+	CLI::App* init_cgpm(CLI::App& app, const CLI::Transformer& xf)
 	{
 		SUB(cgpm, "copies memory from a given source to a destination (guest physical addresses)");
-		REQ(cgpm, destination_physical_address);
-		REQ(cgpm, source_physical_address);
+		TREQ(cgpm, destination_physical_address);
+		TREQ(cgpm, source_physical_address);
 		REQ(cgpm, size);
 		return cgpm;
 	}
@@ -146,11 +150,11 @@ namespace
 			LOG_ERR("failed to copy");
 	}
 
-	CLI::App* init_gvat(CLI::App& app)
+	CLI::App* init_gvat(CLI::App& app, const CLI::Transformer& xf)
 	{
 		SUB(gvat, "translates a guest virtual address to its corresponding guest physical address, with the given guest cr3 value");
-		REQ(gvat, virtual_address);
-		REQ(gvat, cr3);
+		TREQ(gvat, virtual_address);
+		TREQ(gvat, cr3);
 		return gvat;
 	}
 
@@ -162,11 +166,11 @@ namespace
 		LOG_INFO("physical address: 0x{:x}", hc::translate_va(cr3, va));
 	}
 
-	CLI::App* init_rgvm(CLI::App& app)
+	CLI::App* init_rgvm(CLI::App& app, const CLI::Transformer& xf)
 	{
 		SUB(rgvm, "reads memory from a given guest virtual address (when given the corresponding guest cr3 value)");
-		REQ(rgvm, virtual_address);
-		REQ(rgvm, cr3);
+		TREQ(rgvm, virtual_address);
+		TREQ(rgvm, cr3);
 		REQ(rgvm, size)->check(CLI::Range(0, 8));
 		return rgvm;
 	}
@@ -185,11 +189,11 @@ namespace
 			LOG_ERR("failed to read");
 	}
 
-	CLI::App* init_wgvm(CLI::App& app)
+	CLI::App* init_wgvm(CLI::App& app, const CLI::Transformer& xf)
 	{
 		SUB(wgvm, "writes memory from a given guest virtual address (when given the corresponding guest cr3 value)");
-		REQ(wgvm, virtual_address);
-		REQ(wgvm, cr3);
+		TREQ(wgvm, virtual_address);
+		TREQ(wgvm, cr3);
 		REQ(wgvm, value);
 		REQ(wgvm, size)->check(CLI::Range(0, 8));
 		return wgvm;
@@ -208,13 +212,13 @@ namespace
 			LOG_ERR("failed to write at given address");
 	}
 
-	CLI::App* init_cgvm(CLI::App& app)
+	CLI::App* init_cgvm(CLI::App& app, const CLI::Transformer& xf)
 	{
 		SUB(cgvm, "copies memory from a given source to a destination (guest virtual addresses) (when given the corresponding guest cr3 values)");
-		REQ(cgvm, destination_virtual_address);
-		REQ(cgvm, destination_cr3);
-		REQ(cgvm, source_virtual_address);
-		REQ(cgvm, source_cr3);
+		TREQ(cgvm, destination_virtual_address);
+		TREQ(cgvm, destination_cr3);
+		TREQ(cgvm, source_virtual_address);
+		TREQ(cgvm, source_cr3);
 		REQ(cgvm, size);
 		return cgvm;
 	}
@@ -233,10 +237,10 @@ namespace
 			LOG_ERR("failed to copy");
 	}
 
-	CLI::App* init_akh(CLI::App& app)
+	CLI::App* init_akh(CLI::App& app, const CLI::Transformer& xf)
 	{
 		SUB(akh, "add a hook on specified kernel code (given the guest virtual address) (asmbytes in form: 0xE8 0x12 0x23 0x34 0x45)");
-		REQ(akh, virtual_address);
+		TREQ(akh, virtual_address);
 		VAR_LOPT(akh, script_text);
 		VAR_LOPT(akh, script_file);
 		VAR_LOPT(akh, asmbytes);
@@ -250,10 +254,10 @@ namespace
 		LOG_ERR("akh: byte-patch hook model not available in this build (hc:: only exposes page-shadow hook_add/hook_remove)");
 	}
 
-	CLI::App* init_rkh(CLI::App& app)
+	CLI::App* init_rkh(CLI::App& app, const CLI::Transformer& xf)
 	{
 		SUB(rkh, "remove a previously placed hook on specified kernel code (given the guest virtual address)");
-		REQ(rkh, virtual_address);
+		TREQ(rkh, virtual_address);
 		return rkh;
 	}
 
@@ -262,10 +266,10 @@ namespace
 		LOG_ERR("rkh: byte-patch hook model not available in this build");
 	}
 
-	CLI::App* init_hgpp(CLI::App& app)
+	CLI::App* init_hgpp(CLI::App& app, const CLI::Transformer& xf)
 	{
 		SUB(hgpp, "hide a physical page's real contents from the guest");
-		REQ(hgpp, physical_address);
+		TREQ(hgpp, physical_address);
 		return hgpp;
 	}
 
@@ -304,7 +308,8 @@ namespace
 
 	void process_lkm(const CLI::App* const /*lkm*/)
 	{
-		LOG_ERR("lkm: not implemented in this build");
+		for (const auto& [name, info] : sys::kern::modules_list)
+			LOG_INFO("'{}' base=0x{:X} size=0x{:X}", name, info.base, info.size);
 	}
 
 	CLI::App* init_kme(CLI::App& app)
@@ -314,9 +319,20 @@ namespace
 		return kme;
 	}
 
-	void process_kme(const CLI::App* const /*kme*/)
+	void process_kme(const CLI::App* const kme)
 	{
-		LOG_ERR("kme: not implemented in this build");
+		const auto name = GET_STR(kme, module_name);
+
+		const auto it = sys::kern::modules_list.find(name);
+
+		if (it == sys::kern::modules_list.end())
+		{
+			LOG_ERR("module not found");
+			return;
+		}
+
+		for (const auto& [export_name, address] : it->second.exports)
+			LOG_INFO("{} = 0x{:X}", export_name, address);
 	}
 
 	CLI::App* init_dkm(CLI::App& app)
@@ -329,39 +345,44 @@ namespace
 
 	void process_dkm(const CLI::App* const /*dkm*/)
 	{
-		LOG_ERR("dkm: not implemented in this build");
+		LOG_ERR("dkm: fs writer not implemented in this build");
 	}
 
-	CLI::App* init_gva(CLI::App& app)
+	CLI::App* init_gva(CLI::App& app, const CLI::Transformer& xf)
 	{
 		SUB(gva, "get the numerical value of an alias");
-		REQ(gva, alias_name);
+		TREQ(gva, alias_name);
 		return gva;
 	}
 
-	void process_gva(const CLI::App* const /*gva*/)
+	void process_gva(const CLI::App* const gva)
 	{
-		LOG_ERR("gva: alias table not available in this build");
+		LOG_INFO("alias value: 0x{:X}", GET_U64(gva, alias_name));
 	}
 
 	void process(const std::string& command)
 	{
 		if (command.empty()) return;
 
+		sys::kern::parse_modules();
+
+		const auto aliases = cmd::alias::compile();
+		const auto xf = CLI::Transformer(aliases, CLI::ignore_case);
+
 		CLI::App app;
 		app.require_subcommand();
 
-		const CLI::App* const rgpm = init_rgpm(app);
-		const CLI::App* const wgpm = init_wgpm(app);
-		const CLI::App* const cgpm = init_cgpm(app);
-		const CLI::App* const gvat = init_gvat(app);
-		const CLI::App* const rgvm = init_rgvm(app);
-		const CLI::App* const wgvm = init_wgvm(app);
-		const CLI::App* const cgvm = init_cgvm(app);
-		const CLI::App* const akh  = init_akh(app);
-		const CLI::App* const rkh  = init_rkh(app);
-		const CLI::App* const gva  = init_gva(app);
-		const CLI::App* const hgpp = init_hgpp(app);
+		const CLI::App* const rgpm = init_rgpm(app, xf);
+		const CLI::App* const wgpm = init_wgpm(app, xf);
+		const CLI::App* const cgpm = init_cgpm(app, xf);
+		const CLI::App* const gvat = init_gvat(app, xf);
+		const CLI::App* const rgvm = init_rgvm(app, xf);
+		const CLI::App* const wgvm = init_wgvm(app, xf);
+		const CLI::App* const cgvm = init_cgvm(app, xf);
+		const CLI::App* const akh  = init_akh(app, xf);
+		const CLI::App* const rkh  = init_rkh(app, xf);
+		const CLI::App* const gva  = init_gva(app, xf);
+		const CLI::App* const hgpp = init_hgpp(app, xf);
 		const CLI::App* const fl   = init_fl(app);
 		const CLI::App* const hfpc = init_hfpc(app);
 		const CLI::App* const lkm  = init_lkm(app);

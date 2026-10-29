@@ -3,12 +3,24 @@
 
 #include <cstdint>
 #include <span>
+#include <string>
+#include <unordered_map>
 
 namespace sys::kern
 {
+	struct kernel_module
+	{
+		std::uintptr_t base = 0;
+		std::uint32_t size = 0;
+		std::unordered_map<std::string, std::uintptr_t> exports;
+	};
+
 	inline std::uint64_t curr_cr3 = 0;
+	inline std::unordered_map<std::string, kernel_module> modules_list = {};
 
 	bool init() noexcept;
+
+	void parse_modules() noexcept;
 
 	template <class T>
 	T read(const std::uintptr_t va, const std::uint64_t cr3 = curr_cr3) noexcept
