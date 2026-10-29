@@ -2,7 +2,7 @@
 #include <type_traits.hpp>
 #include <ia32.hpp>
 #include "defs.hpp"
-#include "guest_regs.hpp"
+#include <guest_regs.hpp>
 #include "exit_reason.hpp"
 
 struct boot_info;
