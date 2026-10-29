@@ -22,6 +22,11 @@ namespace sys::kern
 
 	void parse_modules() noexcept;
 
+	inline auto nt() noexcept
+	{
+		return modules_list.find("ntoskrnl.exe");
+	}
+
 	template <class T>
 	T read(const std::uintptr_t va, const std::uint64_t cr3 = curr_cr3) noexcept
 	{
