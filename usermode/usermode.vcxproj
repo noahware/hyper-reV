@@ -93,7 +93,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp23</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -111,7 +111,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp23</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -127,7 +127,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp23</LanguageStandard>
       <AdditionalOptions>/Zc:preprocessor %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
@@ -147,7 +147,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp23</LanguageStandard>
       <AdditionalOptions>/Zc:preprocessor %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
@@ -162,11 +162,14 @@
   <ItemGroup>
     <ClCompile Include="src\cmd\alias.cpp" />
     <ClCompile Include="src\cmd\cmd.cpp" />
+    <ClCompile Include="src\hook\arena.cpp" />
+    <ClCompile Include="src\hook\hook.cpp" />
     <ClCompile Include="src\hypercall\hypercall.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\nt\kernel_module.cpp" />
     <ClCompile Include="src\nt\priv.cpp" />
     <ClCompile Include="src\nt\query.cpp" />
+    <ClCompile Include="src\script\script.cpp" />
     <ClCompile Include="src\sys\dump.cpp" />
     <ClCompile Include="src\sys\kernel.cpp" />
     <ClCompile Include="src\util\file.cpp" />
@@ -175,10 +178,17 @@
     <ClInclude Include="src\arch\arch.hpp" />
     <ClInclude Include="src\cmd\alias.hpp" />
     <ClInclude Include="src\cmd\cmd.hpp" />
+    <ClInclude Include="src\hook\arena.hpp" />
+    <ClInclude Include="src\hook\hook.hpp" />
+    <ClInclude Include="src\hook\encode.hpp" />
+    <ClInclude Include="src\hook\orig_bytes.hpp" />
+    <ClInclude Include="src\hook\shadow.hpp" />
     <ClInclude Include="src\hypercall\hypercall.hpp" />
+    <ClInclude Include="src\nt\alloc.hpp" />
     <ClInclude Include="src\nt\kernel_module.hpp" />
     <ClInclude Include="src\nt\priv.hpp" />
     <ClInclude Include="src\nt\query.hpp" />
+    <ClInclude Include="src\script\script.hpp" />
     <ClInclude Include="src\sys\dump.hpp" />
     <ClInclude Include="src\sys\kernel.hpp" />
     <ClInclude Include="src\sys\sys.hpp" />
