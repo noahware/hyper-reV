@@ -169,6 +169,7 @@
     <ClCompile Include="src\nt\query.cpp" />
     <ClCompile Include="src\sys\dump.cpp" />
     <ClCompile Include="src\sys\kernel.cpp" />
+    <ClCompile Include="src\util\file.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\arch\arch.hpp" />
@@ -181,6 +182,7 @@
     <ClInclude Include="src\sys\dump.hpp" />
     <ClInclude Include="src\sys\kernel.hpp" />
     <ClInclude Include="src\sys\sys.hpp" />
+    <ClInclude Include="src\util\file.hpp" />
     <ClInclude Include="src\util\log.hpp" />
   </ItemGroup>
   <ItemGroup>

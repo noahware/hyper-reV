@@ -42,9 +42,15 @@
     <ClCompile Include="src\nt\kernel_module.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\util\file.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\util\log.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\file.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\arch\arch.hpp">
