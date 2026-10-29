@@ -29,6 +29,9 @@ void vmexit::first::handle()
 {
 	static cstd::atomic<bool> handled;
 
+	if (handled.load(cstd::memory_order::relaxed))
+		return;
+
 	if (handled.exchange(true))
 		return;
 
@@ -41,7 +44,7 @@ void vmexit::first::handle_non_bsp()
 {
 	static cstd::atomic<bool> handled;
 
-	if (handled.load() == true)
+	if (handled.load(cstd::memory_order::relaxed))
 		return;
 
 	if (vcpu::is_bsp())
