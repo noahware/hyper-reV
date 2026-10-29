@@ -1,9 +1,11 @@
 #pragma once
 #include <cstdint>
+#include <filesystem>
 #include <span>
-#include <string_view>
+#include <vector>
 
 namespace util::file
 {
-	bool write(std::string_view path, std::span<const std::uint8_t> data) noexcept;
+	bool write(const std::filesystem::path& path, std::span<const std::uint8_t> data) noexcept;
+	std::vector<std::uint8_t> read(const std::filesystem::path& path) noexcept;
 }

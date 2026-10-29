@@ -1,11 +1,11 @@
 #include "file.hpp"
 
 #include <fstream>
-#include <string>
+#include <iterator>
 
-bool util::file::write(const std::string_view path, const std::span<const std::uint8_t> data) noexcept
+bool util::file::write(const std::filesystem::path& path, const std::span<const std::uint8_t> data) noexcept
 {
-	std::ofstream out(std::string{ path }, std::ios::binary);
+	std::ofstream out(path, std::ios::binary);
 
 	if (!out)
 		return false;
@@ -13,4 +13,14 @@ bool util::file::write(const std::string_view path, const std::span<const std::u
 	out.write(reinterpret_cast<const char*>(data.data()), static_cast<std::streamsize>(data.size()));
 
 	return out.good();
+}
+
+std::vector<std::uint8_t> util::file::read(const std::filesystem::path& path) noexcept
+{
+	std::ifstream in(path, std::ios::binary);
+
+	if (!in)
+		return {};
+
+	return { std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>() };
 }
