@@ -163,6 +163,9 @@
     <ClCompile Include="src\cmd\cmd.cpp" />
     <ClCompile Include="src\hypercall\hypercall.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\nt\kernel_module.cpp" />
+    <ClCompile Include="src\nt\priv.cpp" />
+    <ClCompile Include="src\nt\query.cpp" />
     <ClCompile Include="src\sys\dump.cpp" />
     <ClCompile Include="src\sys\kernel.cpp" />
   </ItemGroup>
@@ -170,6 +173,9 @@
     <ClInclude Include="src\arch\arch.hpp" />
     <ClInclude Include="src\cmd\cmd.hpp" />
     <ClInclude Include="src\hypercall\hypercall.hpp" />
+    <ClInclude Include="src\nt\kernel_module.hpp" />
+    <ClInclude Include="src\nt\priv.hpp" />
+    <ClInclude Include="src\nt\query.hpp" />
     <ClInclude Include="src\sys\dump.hpp" />
     <ClInclude Include="src\sys\kernel.hpp" />
     <ClInclude Include="src\sys\sys.hpp" />

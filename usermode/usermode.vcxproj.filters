@@ -30,12 +30,30 @@
     <ClCompile Include="src\sys\dump.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\nt\priv.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\nt\query.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\nt\kernel_module.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\util\log.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\arch\arch.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nt\priv.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nt\query.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nt\kernel_module.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\hypercall\hypercall.hpp">
