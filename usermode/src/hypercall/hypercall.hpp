@@ -2,6 +2,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <hypercall.hpp>
+#include <log.hpp>
 
 namespace hc
 {
@@ -22,4 +23,7 @@ namespace hc
 
 	bool hide_page(std::uintptr_t target_gpa) noexcept;
 	std::size_t rem_heap_size() noexcept;
+
+	bool add_log() noexcept;
+	std::size_t flush_logs(logs::entry* out, std::uint16_t count) noexcept;
 }

@@ -72,26 +72,25 @@ bool hook::arena::init() noexcept
 	return true;
 }
 
-std::optional<std::uintptr_t> hook::arena::alloc(const std::span<const std::uint8_t> bytes) noexcept
+std::optional<hook::arena::slot> hook::arena::alloc(const std::size_t size) noexcept
 {
 	for (auto it = holes.begin(); it != holes.end(); ++it)
 	{
-		if (it->len < bytes.size())
+		if (it->len < size)
 			continue;
 
 		const auto off = it->off;
 
-		it->off += bytes.size();
-		it->len -= bytes.size();
+		it->off += size;
+		it->len -= size;
 
 		if (it->len == 0)
 			holes.erase(it);
 
-		std::memcpy(pad.data() + off, bytes.data(), bytes.size());
-		return pad_va + off;
+		return slot{ pad_va + off, { pad.data() + off, size } };
 	}
 
-	LOG_ERR("hook::arena: no slot for {} bytes", bytes.size());
+	LOG_ERR("hook::arena: no slot for {} bytes", size);
 	return std::nullopt;
 }
 

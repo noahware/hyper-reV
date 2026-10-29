@@ -104,24 +104,35 @@ bool hook::install(const std::uintptr_t target_va,
 		return false;
 	}
 
-	const auto orig_bytes = collect_orig_bytes(target_va, abs_jmp_size);
-	if (!orig_bytes)
+	const auto orig = collect_orig_bytes(target_va, abs_jmp_size);
+	if (!orig)
 		return false;
 
-	const auto stub = collect_stub_bytes(pre, *orig_bytes, post, target_va + orig_bytes->size(), monitor);
+	const auto stub = collect_stub_bytes(pre, orig->bytes, post, target_va + orig->consumed, monitor);
 
-	const auto stub_va = arena::alloc(stub);
-	if (!stub_va)
+	const auto slot = arena::alloc(stub.size());
+	if (!slot)
 		return false;
 
-	auto rec = redirect_entry(target_va, *stub_va);
-	if (!rec)
+	std::ranges::copy(stub, slot->bytes.begin());
+
+	// the relocated bytes sit after pre and the optional monitor stub
+	const auto orig_off = pre.size() + (monitor ? monitor_stub_size : 0);
+
+	if (!resolve_fixups(slot->bytes, orig_off, orig->fixups, slot->va))
 	{
-		arena::free(*stub_va, stub.size());
+		arena::free(slot->va, stub.size());
 		return false;
 	}
 
-	rec->stub_va = *stub_va;
+	auto rec = redirect_entry(target_va, slot->va);
+	if (!rec)
+	{
+		arena::free(slot->va, stub.size());
+		return false;
+	}
+
+	rec->stub_va = slot->va;
 	rec->stub_size = stub.size();
 
 	list.emplace(target_va, std::move(*rec));
