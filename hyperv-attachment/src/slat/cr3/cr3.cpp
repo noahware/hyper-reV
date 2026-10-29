@@ -5,18 +5,18 @@
 
 void slat::cr3::init() noexcept
 {
-	hyperv_cr3 = arch::slat_cr3();
+	hyperv = arch::slat_cr3();
 }
 
 void slat::cr3::first_hook() noexcept
 {
 	const auto* src_pml4 = mem::map_phys<const arch::slat_pml4e*>(
-		hyperv_cr3.address_of_page_directory << page_shift);
+		hyperv.address_of_page_directory << page_shift);
 
 	auto* dest_pml4 = static_cast<arch::slat_pml4e*>(mem::page::alloc());
 
 	deep_copy(src_pml4, dest_pml4);
 
-	shadow_cr3 = hyperv_cr3;
-	shadow_cr3.address_of_page_directory = mem::pfn_for_map(dest_pml4);
+	shadow = hyperv;
+	shadow.address_of_page_directory = mem::pfn_for_map(dest_pml4);
 }

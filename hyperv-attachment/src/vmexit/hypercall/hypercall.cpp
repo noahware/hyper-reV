@@ -65,7 +65,7 @@ bool hc::handle(guest_regs& regs)
 		const phys_addr target_gpa = regs.rdx;
 		const phys_addr shadow_gpa = regs.r8;
 
-		const auto shadow_hpa = mem::translate_va(slat::cr3::hyperv_cr3, shadow_gpa);
+		const auto shadow_hpa = mem::translate_va(slat::cr3::hyperv, shadow_gpa);
 		if (!shadow_hpa)
 		{
 			regs.rax = 0;

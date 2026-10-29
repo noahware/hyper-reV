@@ -58,6 +58,6 @@ namespace
 
 void slat::hook::handle_page_split(const phys_addr page_gpa) noexcept
 {
-	if (could_be_split_instruction(cr3::shadow_cr3))
-		grant_page_execute(cr3::shadow_cr3, page_gpa);
+	if (could_be_split_instruction(cr3::shadow))
+		grant_page_execute(cr3::shadow, page_gpa);
 }

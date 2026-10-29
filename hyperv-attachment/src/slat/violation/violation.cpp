@@ -16,11 +16,11 @@ bool slat::violation::handle() noexcept
 
 	const auto page_gpa = violation.gpa & ~page_mask;
 
-	if (arch::slat_cr3().flags != cr3::hyperv_cr3.flags)
+	if (arch::slat_cr3().flags != cr3::hyperv.flags)
 	{
 		hook::handle_page_split(page_gpa);
 
-		arch::set_slat_cr3(cr3::hyperv_cr3);
+		arch::set_slat_cr3(cr3::hyperv);
 		arch::flush_slat_cache();
 		return true;
 	}
@@ -32,7 +32,7 @@ bool slat::violation::handle() noexcept
 		if ((hook.gpa & ~page_mask) != page_gpa)
 			continue;
 
-		arch::set_slat_cr3(cr3::shadow_cr3);
+		arch::set_slat_cr3(cr3::shadow);
 		arch::flush_slat_cache();
 		return true;
 	}

@@ -31,11 +31,11 @@ bool slat::hook::add(const phys_addr gpa, const phys_addr shadow_hpa) noexcept
 		if (list.empty())
 			cr3::first_hook();
 
-		auto* orig_pte = cr3::find_split_leaf(cr3::hyperv_cr3, gpa);
+		auto* orig_pte = cr3::find_split_leaf(cr3::hyperv, gpa);
 		if (!orig_pte)
 			return false;
 
-		auto* shadow_pte = cr3::find_split_leaf(cr3::shadow_cr3, gpa);
+		auto* shadow_pte = cr3::find_split_leaf(cr3::shadow, gpa);
 		if (!shadow_pte)
 			return false;
 
@@ -67,10 +67,10 @@ bool slat::hook::remove(const phys_addr gpa) noexcept
 
 			found = true;
 
-			if (auto* orig_pte = cr3::find_split_leaf(cr3::hyperv_cr3, gpa))
+			if (auto* orig_pte = cr3::find_split_leaf(cr3::hyperv, gpa))
 				arch::slat_set_perm(*orig_pte, page_perm::rwx);
 
-			if (auto* shadow_pte = cr3::find_split_leaf(cr3::shadow_cr3, gpa))
+			if (auto* shadow_pte = cr3::find_split_leaf(cr3::shadow, gpa))
 			{
 				shadow_pte->page_frame_number = entry.original_hpa >> page_shift;
 				arch::slat_set_perm(*shadow_pte, page_perm::rwx);
@@ -81,8 +81,8 @@ bool slat::hook::remove(const phys_addr gpa) noexcept
 
 		if (found && !hook_in_merge_range(gpa))
 		{
-			cr3::merge(cr3::hyperv_cr3, gpa);
-			cr3::merge(cr3::shadow_cr3, gpa);
+			cr3::merge(cr3::hyperv, gpa);
+			cr3::merge(cr3::shadow, gpa);
 		}
 	}
 

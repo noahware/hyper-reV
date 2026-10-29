@@ -3,8 +3,8 @@
 
 namespace slat::cr3
 {
-	inline ::cr3 hyperv_cr3{};
-	inline ::cr3 shadow_cr3{};
+	inline ::cr3 hyperv{};
+	inline ::cr3 shadow{};
 
 	void init() noexcept;
 	void first_hook() noexcept;
