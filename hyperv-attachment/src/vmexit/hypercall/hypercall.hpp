@@ -1,5 +1,5 @@
 #pragma once
-#include "../../arch/guest_regs.hpp"
+#include <guest_regs.hpp>
 
 namespace hc
 {

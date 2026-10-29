@@ -1,5 +1,6 @@
 #include "hypercall.hpp"
 #include "../../arch/current.hpp"
+#include "../../logs/logs.hpp"
 #include "../../mem/alloc/page.hpp"
 #include "../../mem/guest.hpp"
 #include "../../mem/mem.hpp"
@@ -99,6 +100,23 @@ bool hc::handle(guest_regs& regs)
 	case type::rem_heap_size:
 	{
 		regs.rax = mem::page::free_count() << page_shift;
+
+		return true;
+	}
+
+	case type::add_log:
+	{
+		logs::add(regs);
+
+		return true;
+	}
+
+	case type::flush_logs:
+	{
+		const auto guest_va = static_cast<std::uintptr_t>(regs.rdx);
+		const auto count = static_cast<std::uint16_t>(regs.r8);
+
+		regs.rax = logs::flush(arch::guest_cr3(), guest_va, count);
 
 		return true;
 	}

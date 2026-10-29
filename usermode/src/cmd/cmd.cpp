@@ -293,7 +293,38 @@ namespace
 
 	void process_fl(const CLI::App* const /*fl*/)
 	{
-		LOG_ERR("fl: not implemented in this build");
+		std::vector<logs::entry> buf(logs::ring_capacity);
+
+		const auto n = hc::flush_logs(buf.data(),
+			static_cast<std::uint16_t>(buf.size()));
+
+		if (n == 0)
+		{
+			LOG_INFO("no logs");
+			return;
+		}
+
+		LOG_INFO("flushed {} log(s)", n);
+		for (std::size_t i = 0; i < n; i++)
+		{
+			auto e = buf[i];
+			// stub pushed the caller's rcx before clobbering it; recover the real value
+			e.regs.rcx = e.stack_data[0];
+
+			const auto& r = e.regs;
+
+			LOG_INFO("[{}] rip=0x{:016X} cr3=0x{:016X}", i, e.rip, e.cr3);
+			LOG_INFO("  rax=0x{:016X}  rbx=0x{:016X}  rcx=0x{:016X}  rdx=0x{:016X}",
+				r.rax, r.rbx, r.rcx, r.rdx);
+			LOG_INFO("  rsi=0x{:016X}  rdi=0x{:016X}  rbp=0x{:016X}  rsp=0x{:016X}",
+				r.rsi, r.rdi, r.rbp, r.rsp);
+			LOG_INFO("  r8 =0x{:016X}  r9 =0x{:016X}  r10=0x{:016X}  r11=0x{:016X}",
+				r.r8, r.r9, r.r10, r.r11);
+			LOG_INFO("  r12=0x{:016X}  r13=0x{:016X}  r14=0x{:016X}  r15=0x{:016X}",
+				r.r12, r.r13, r.r14, r.r15);
+			LOG_INFO("  stack: 0x{:016X} 0x{:016X} 0x{:016X} 0x{:016X}",
+				e.stack_data[1], e.stack_data[2], e.stack_data[3], e.stack_data[4]);
+		}
 	}
 
 	CLI::App* init_hfpc(CLI::App& app)

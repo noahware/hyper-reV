@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 
 namespace hc
 {
@@ -14,7 +15,9 @@ namespace hc
 		hook_add,
 		hook_remove,
 		hide_page,
-		rem_heap_size
+		rem_heap_size,
+		add_log,
+		flush_logs
 	};
 
 	union info

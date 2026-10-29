@@ -69,3 +69,13 @@ std::size_t hc::rem_heap_size() noexcept
 {
 	return send(type::rem_heap_size);
 }
+
+bool hc::add_log() noexcept
+{
+	return send(type::add_log);
+}
+
+std::size_t hc::flush_logs(logs::entry* const out, const std::uint16_t count) noexcept
+{
+	return send(type::flush_logs, reinterpret_cast<std::uintptr_t>(out), count);
+}

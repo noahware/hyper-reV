@@ -79,6 +79,7 @@
     <ClCompile Include="src\intr\nmi.cpp" />
     <ClCompile Include="src\intr\idt.cpp" />
     <ClCompile Include="src\intr\apic_glue.cpp" />
+    <ClCompile Include="src\logs\logs.cpp" />
     <ClCompile Include="$(SolutionDir)vendor\apic\src\apic.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -88,7 +89,7 @@
     <ClInclude Include="src\arch\current.hpp" />
     <ClInclude Include="src\arch\defs.hpp" />
     <ClInclude Include="src\arch\exit_reason.hpp" />
-    <ClInclude Include="src\arch\guest_regs.hpp" />
+    <ClInclude Include="src\logs\logs.hpp" />
     <ClInclude Include="src\arch\intel.hpp" />
     <ClInclude Include="src\mem\alloc\page.hpp" />
     <ClInclude Include="src\mem\alloc\slab.hpp" />
