@@ -1,4 +1,5 @@
 #pragma once
+#include "../arch/arch.hpp"
 #include "../sys/kernel.hpp"
 #include "../util/log.hpp"
 
@@ -13,8 +14,6 @@
 
 namespace hook
 {
-	constexpr std::size_t max_insn_size = 15;
-
 	inline std::optional<std::vector<std::uint8_t>> max_stub_bytes(const std::uintptr_t va,
 	                                                               const std::size_t size) noexcept
 	{
@@ -55,7 +54,7 @@ namespace hook
 	inline std::optional<std::vector<std::uint8_t>> collect_orig_bytes(const std::uintptr_t va,
 	                                                                   const std::size_t min_size) noexcept
 	{
-		auto raw = max_stub_bytes(va, min_size + max_insn_size);
+		auto raw = max_stub_bytes(va, min_size + arch::max_insn_size);
 		if (!raw)
 			return std::nullopt;
 
