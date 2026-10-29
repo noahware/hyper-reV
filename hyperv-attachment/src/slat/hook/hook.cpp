@@ -67,7 +67,7 @@ bool slat::hook::add(const phys_addr gpa, const phys_addr shadow_hpa) noexcept
 	return true;
 }
 
-bool slat::hook::hide(const phys_addr gpa) noexcept
+bool slat::hook::hide(const phys_addr gpa, const std::size_t page_count) noexcept
 {
 	cstd::lock_guard guard(hook::mtx);
 
@@ -75,16 +75,23 @@ bool slat::hook::hide(const phys_addr gpa) noexcept
 	if (!zero_hpa)
 		return false;
 
-	auto* orig_pte = cr3::find_split_leaf(cr3::hyperv, gpa);
-	if (!orig_pte)
-		return false;
+	const auto zero_pfn = zero_hpa >> page_shift;
 
-	auto* shadow_pte = cr3::find_split_leaf(cr3::shadow, gpa);
-	if (!shadow_pte)
-		return false;
+	for (std::size_t i = 0; i < page_count; i++)
+	{
+		const phys_addr target = gpa + i * page_size;
 
-	orig_pte->page_frame_number = zero_hpa >> page_shift;
-	shadow_pte->page_frame_number = zero_hpa >> page_shift;
+		auto* orig_pte = cr3::find_split_leaf(cr3::hyperv, target);
+		if (!orig_pte)
+			return false;
+
+		auto* shadow_pte = cr3::find_split_leaf(cr3::shadow, target);
+		if (!shadow_pte)
+			return false;
+
+		orig_pte->page_frame_number = zero_pfn;
+		shadow_pte->page_frame_number = zero_pfn;
+	}
 
 	return true;
 }

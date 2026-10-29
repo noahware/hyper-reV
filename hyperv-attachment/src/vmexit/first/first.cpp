@@ -1,8 +1,10 @@
 #include "first.hpp"
+#include "../../arch/defs.hpp"
 #include "../../mem/map.hpp"
 #include "../../vcpu/vcpu.hpp"
 #include "../../slat/slat.hpp"
 #include "../../slat/cr3/cr3.hpp"
+#include "../../slat/hook/hook.hpp"
 #include "../../intr/nmi.hpp"
 
 #include <atomic.hpp>
@@ -12,6 +14,7 @@
 namespace
 {
 	phys_range boot_img;
+	phys_range heap_range;
 
 	void wipe_boot_img() noexcept
 	{
@@ -19,11 +22,17 @@ namespace
 
 		cstd::crt::memset(img_base, 0, boot_img.size);
 	}
+
+	void hide_heap() noexcept
+	{
+		slat::hook::hide(heap_range.base, heap_range.size / page_size);
+	}
 }
 
 void vmexit::first::init(const boot_info& bi)
 {
 	boot_img = bi.boot_img;
+	heap_range = bi.heap_range;
 }
 
 void vmexit::first::handle()
@@ -55,4 +64,5 @@ void vmexit::first::handle_non_bsp()
 		return;
 
 	slat::cr3::init_shadow();
+	hide_heap();
 }
