@@ -60,7 +60,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\arch\amd.cpp" />
-    <ClCompile Include="src\deps\crt.cpp" />
+    <ClCompile Include="src\deps\crt.cpp">
+      <!-- Defines memset/memcpy, which MSVC treats as library helpers and refuses to accept from a /GL object. -->
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+    </ClCompile>
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\mem\alloc\page.cpp" />
     <ClCompile Include="src\mem\alloc\slab.cpp" />
