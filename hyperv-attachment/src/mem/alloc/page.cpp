@@ -4,6 +4,7 @@
 #include <boot_info.hpp>
 #include <mutex.hpp>
 #include <crt.hpp>
+#include <identity_map.hpp>
 
 #include "../../arch/defs.hpp"
 
@@ -48,7 +49,7 @@ namespace
 
 void mem::page::init(const boot_info& bi) noexcept
 {
-	arena_base = bi.heap_range.base;
+	arena_base = hva_identity_map_base() + bi.heap_range.base;
 
 	free_pages.set();
 	mark_boot_used_pages(bi);
