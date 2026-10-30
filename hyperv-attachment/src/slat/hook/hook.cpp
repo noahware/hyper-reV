@@ -11,8 +11,6 @@ namespace
 {
 	constexpr phys_addr large_page_2mb_mask = (1ULL << large_page_shift) - 1;
 
-	phys_addr zero_page_hpa = 0;
-
 	bool hook_in_merge_range(const phys_addr gpa) noexcept
 	{
 		const auto base = gpa & ~large_page_2mb_mask;
@@ -26,22 +24,35 @@ namespace
 		return false;
 	}
 
-	phys_addr ensure_zero_page_hpa() noexcept
+	// its own lock, since the hiding below takes hook::mtx for itself
+	cstd::mutex shadow_mtx;
+
+	bool ensure_shadow() noexcept
 	{
-		if (zero_page_hpa)
-			return zero_page_hpa;
+		cstd::lock_guard guard(shadow_mtx);
 
-		void* const page = mem::page::alloc(1);
-		if (!page)
-			return 0;
+		if (slat::cr3::shadow.flags)
+			return true;
 
-		zero_page_hpa = mem::phys_for_map(page);
-		return zero_page_hpa;
+		slat::cr3::init_shadow();
+
+		if (!slat::cr3::shadow.flags)
+			return false;
+
+		return slat::hook::hide_heap();
 	}
+}
+
+void slat::hook::init(const boot_info& bi) noexcept
+{
+	init_hide(bi);
 }
 
 bool slat::hook::add(const phys_addr gpa, const phys_addr shadow_hpa) noexcept
 {
+	if (!ensure_shadow())
+		return false;
+
 	{
 		cstd::lock_guard guard(hook::mtx);
 
@@ -64,35 +75,6 @@ bool slat::hook::add(const phys_addr gpa, const phys_addr shadow_hpa) noexcept
 	}
 
 	cache::flush_all();
-	return true;
-}
-
-bool slat::hook::hide(const phys_addr gpa, const std::size_t page_count) noexcept
-{
-	cstd::lock_guard guard(hook::mtx);
-
-	const auto zero_hpa = ensure_zero_page_hpa();
-	if (!zero_hpa)
-		return false;
-
-	const auto zero_pfn = zero_hpa >> page_shift;
-
-	for (std::size_t i = 0; i < page_count; i++)
-	{
-		const phys_addr target = gpa + i * page_size;
-
-		auto* orig_pte = cr3::find_split_leaf(cr3::hyperv, target);
-		if (!orig_pte)
-			return false;
-
-		auto* shadow_pte = cr3::find_split_leaf(cr3::shadow, target);
-		if (!shadow_pte)
-			return false;
-
-		orig_pte->page_frame_number = zero_pfn;
-		shadow_pte->page_frame_number = zero_pfn;
-	}
-
 	return true;
 }
 

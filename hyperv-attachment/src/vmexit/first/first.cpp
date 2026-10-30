@@ -14,7 +14,6 @@
 namespace
 {
 	phys_range boot_img;
-	phys_range heap_range;
 
 	void wipe_boot_img() noexcept
 	{
@@ -22,17 +21,11 @@ namespace
 
 		cstd::crt::memset(img_base, 0, boot_img.size);
 	}
-
-	void hide_heap() noexcept
-	{
-		slat::hook::hide(heap_range.base, heap_range.size / page_size);
-	}
 }
 
 void vmexit::first::init(const boot_info& bi)
 {
 	boot_img = bi.boot_img;
-	heap_range = bi.heap_range;
 }
 
 void vmexit::first::handle()
@@ -63,6 +56,6 @@ void vmexit::first::handle_non_bsp()
 	if (handled.exchange(true))
 		return;
 
-	slat::cr3::init_shadow();
-	hide_heap();
+	// the shadow is taken by the first hook, which hides this for itself
+	slat::hook::hide_heap();
 }
