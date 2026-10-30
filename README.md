@@ -315,9 +315,8 @@ In addition, you must build the EDK2 libraries by opening uefi-boot\ext\edk2\bui
 ## 7.2. Architecture-specific compilation
 The hyperv-attachment must be selected to be built for either Intel or AMD.
 
-To compile the hyperv-attachment for Intel: #define _INTELMACHINE in arch_config.h (which is in the hyperv-attachment src directory).
-
-To compile for AMD, simply comment that aforementioned #define line out and rebuild. 
+To compile the hyperv-attachment for Intel: #define ARCH_INTEL in `hyperv-attachment/src/arch/current.hpp`.
+To compile the hyperv-attachment for AMD: #define ARCH_AMD in `hyperv-attachment/src/arch/current.hpp`.
 
 The binaries of the uefi-boot module and usermode app will work for both Intel and AMD no matter the configuration specified in the hyperv-attachment.
 
