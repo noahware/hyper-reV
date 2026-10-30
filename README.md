@@ -345,3 +345,7 @@ Ensure the latest minor updates for those major Windows versions are applied if 
 [@papstuc](https://github.com/papstuc) - crucial advice, especially for the suggestion of synchronizing EPT/NPT cache across all processors, his idea for AMD NPT hooks on page splits and [his Windows file format parsing library](https://github.com/papstuc/portable_executable) used in the usermode app.
 
 mylostchristmas - found that the prior method of allocating SLAT protected SLAB pages via winload.efi's SLAB allocator did not function the same way on 24H2. This functionality was then removed from the project and replaced with in-house SLAT protection.
+
+[Alex Ionescu](https://github.com/ionescu007) - for his VisualUEFI project.
+
+[ia32-doc](https://github.com/ia32-doc/) - for ia32-doc.
