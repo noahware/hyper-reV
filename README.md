@@ -302,15 +302,15 @@ stack data:
 ## 7.1. 'uefi-boot' compilation
 To compile the uefi-boot module, you must install NASM (https://nasm.us) and "check that the environment variable NASM_PREFIX is correctly set to NASM installation path" (quoted from https://github.com/ionescu007/VisualUefi/#Installation).
 
-All submodules must be cloned (VisualUEFI / EDK2). They will reside in uefi-boot\ext.
-
-The command to clone the repository (including submodules):
+Clone the repository with its submodules, then initialize VisualUefi's own edk2 and openssl submodules (recursive init isn't used because the deeply nested openssl in edk2/CryptoPkg trips Windows path limits and isn't needed):
 
 ```
 git clone --recurse-submodules https://github.com/noahware/hyper-reV.git
+cd hyper-reV
+git -C vendor/visual-uefi submodule update --init edk2 openssl
 ```
 
-In addition, you must build the EDK2 libraries by opening uefi-boot\ext\edk2\build\EDK-II.sln and building the entire solution.
+Then build the EDK2 libraries by opening vendor\visual-uefi\EDK-II\EDK-II.sln and building the entire solution.
 
 ## 7.2. Architecture-specific compilation
 The hyperv-attachment must be selected to be built for either Intel or AMD.
