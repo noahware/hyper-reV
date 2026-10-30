@@ -1,0 +1,9 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Release" />
+    <Platform Name="x64" />
+  </Configurations>
+  <Project Path="uefi-boot/uefi-boot.vcxproj" Id="a8c03eeb-3fe7-4eab-b1f8-273a441bc8b9" />
+  <Project Path="hyperv-attachment/hyperv-attachment.vcxproj" Id="13a77c37-9bb2-445d-8e81-9687e455c2e6" />
+  <Project Path="usermode/usermode.vcxproj" Id="c2c94859-0800-4316-bcee-382d7691fc99" />
+</Solution>

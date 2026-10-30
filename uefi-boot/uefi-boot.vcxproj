@@ -7,33 +7,45 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\bootmgfw\bootmgfw.c" />
-    <ClCompile Include="src\disk\disk.c" />
-    <ClCompile Include="src\hooks\hooks.c" />
-    <ClCompile Include="src\hvloader\hvloader.c" />
-    <ClCompile Include="src\hyperv_attachment\hyperv_attachment.c" />
-    <ClCompile Include="src\image\image.c" />
-    <ClCompile Include="src\main.c" />
-    <ClCompile Include="src\memory_manager\memory_manager.c" />
-    <ClCompile Include="src\winload\winload.c" />
+    <ClCompile Include="src\bootmgfw\bootmgfw.cpp" />
+    <ClCompile Include="src\efi\boot.cpp" />
+    <ClCompile Include="src\efi\file.cpp" />
+    <ClCompile Include="src\hyperv\hyperv.cpp" />
+    <ClCompile Include="src\hyperv_attachment\hva.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\deps\cstd_crt.cpp" />
+    <ClCompile Include="src\mem\heap.cpp" />
+    <ClCompile Include="src\mem\page_tables.cpp" />
+    <ClCompile Include="src\winload\winload.cpp" />
+    <ClCompile Include="src\hvloader\hvloader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ext\ia32-doc\ia32_compact.h" />
-    <ClInclude Include="src\bootmgfw\bootmgfw.h" />
-    <ClInclude Include="src\disk\disk.h" />
-    <ClInclude Include="src\hooks\hooks.h" />
-    <ClInclude Include="src\hvloader\hvloader.h" />
-    <ClInclude Include="src\hyperv_attachment\hyperv_attachment.h" />
-    <ClInclude Include="src\image\image.h" />
-    <ClInclude Include="src\memory_manager\memory_manager.h" />
-    <ClInclude Include="src\structures\ntdef.h" />
-    <ClInclude Include="src\structures\relocation_entry.h" />
-    <ClInclude Include="src\structures\virtual_address.h" />
-    <ClInclude Include="src\winload\winload.h" />
+    <ClInclude Include="src\arch\cpu.hpp" />
+    <ClInclude Include="src\bootmgfw\bootmgfw.hpp" />
+    <ClInclude Include="src\hvloader\hvloader.hpp" />
+    <ClInclude Include="src\deps\pe_deps.hpp" />
+    <ClInclude Include="src\efi\boot.hpp" />
+    <ClInclude Include="src\efi\file.hpp" />
+    <ClInclude Include="src\efi\image.hpp" />
+    <ClInclude Include="src\efi\obj.hpp" />
+    <ClInclude Include="src\efi\status.hpp" />
+    <ClInclude Include="src\hook\hook.hpp" />
+    <ClInclude Include="src\hook\load_pe_img.hpp" />
+    <ClInclude Include="src\hyperv\hyperv.hpp" />
+    <ClInclude Include="src\hyperv_attachment\hva.hpp" />
+    <ClInclude Include="src\mem\heap.hpp" />
+    <ClInclude Include="src\mem\mem.hpp" />
+    <ClInclude Include="src\mem\page_tables.hpp" />
+    <ClInclude Include="src\mem\range.hpp" />
+    <ClInclude Include="src\sig\sig.hpp" />
+    <ClInclude Include="src\util\log.hpp" />
+    <ClInclude Include="src\util\scan.hpp" />
+    <ClInclude Include="src\winload\winload.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{a8c03eeb-3fe7-4eab-b1f8-273a441bc8b9}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="$(ProjectDir)\uefi.default.props" />
@@ -44,12 +56,18 @@
   <ImportGroup Label="ExtensionTargets" />
   <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)ext;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)shared;$(SolutionDir)vendor\ia32-doc\;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)\build\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\build\$(Configuration)\obj\$(TargetName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
       <AdditionalDependencies>UefiDriverEntryPoint.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem Condition="'$(Configuration)|$(Platform)'=='Release|x64'">EFI Application</SubSystem>
     </Link>
+    <ClCompile>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdcpp20</LanguageStandard>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/Zc:preprocessor %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
   </ItemDefinitionGroup>
 </Project>

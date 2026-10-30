@@ -1,12 +1,11 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <EDK_PATH>$(ProjectDir)ext\edk2\src</EDK_PATH>
-  </PropertyGroup>
-  <PropertyGroup>
-    <IncludePath>$(EDK_PATH)\MdePkg\Include;$(EDK_PATH)\MdePkg\Include\X64;$(EDK_PATH)\ShellPkg\Include;$(EDK_PATH)\CryptoPkg\Include</IncludePath>
-    <LibraryPath>$(ProjectDir)ext\edk2\build\$(Platform)\$(Configuration)</LibraryPath>
+    <EDK_PATH>$(SolutionDir)vendor\edk2\src</EDK_PATH>
+    <EDK_BUILD_PATH>$(SolutionDir)vendor\edk2\build</EDK_BUILD_PATH>
+    <CSTD_PATH>$(SolutionDir)vendor\cstd</CSTD_PATH>
+    <PE_PATH>$(SolutionDir)vendor\pe</PE_PATH>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -18,6 +17,18 @@
   <ItemGroup>
     <BuildMacro Include="EDK_PATH">
       <Value>$(EDK_PATH)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="EDK_BUILD_PATH">
+      <Value>$(EDK_BUILD_PATH)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="CSTD_PATH">
+      <Value>$(CSTD_PATH)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="PE_PATH">
+      <Value>$(PE_PATH)</Value>
       <EnvironmentVariable>true</EnvironmentVariable>
     </BuildMacro>
   </ItemGroup>

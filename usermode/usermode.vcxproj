@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -19,9 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>17.0</VCProjectVersion>
+    <VCProjectVersion>18.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{2ea786e4-1147-4804-aead-17975e24ec46}</ProjectGuid>
+    <ProjectGuid>{c2c94859-0800-4316-bcee-382d7691fc99}</ProjectGuid>
     <RootNamespace>usermode</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -29,26 +29,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -71,24 +71,27 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnabled>true</VcpkgEnabled>
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
+    <VcpkgManifestInstall>true</VcpkgManifestInstall>
+    <VcpkgApplocalDeps>false</VcpkgApplocalDeps>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Vcpkg">
+    <VcpkgTriplet>x64-windows-static</VcpkgTriplet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Vcpkg">
+    <VcpkgTriplet>x64-windows-static</VcpkgTriplet>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)\build\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\build\$(Platform)\$(Configuration)\obj\$(TargetName)\</IntDir>
-    <IncludePath>$(SolutionDir)shared;$(ProjectDir)ext;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)shared;$(SolutionDir)vendor\pe\include;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)\build\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\build\$(Configuration)\obj\$(TargetName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)\build\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\build\$(Platform)\$(Configuration)\obj\$(TargetName)\</IntDir>
-    <IncludePath>$(SolutionDir)shared;$(ProjectDir)ext;$(IncludePath)</IncludePath>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg">
-    <VcpkgEnableManifest>true</VcpkgEnableManifest>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <VcpkgUseStatic>true</VcpkgUseStatic>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <VcpkgUseStatic>true</VcpkgUseStatic>
+    <IncludePath>$(SolutionDir)shared;$(SolutionDir)vendor\pe\include;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)\build\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\build\$(Configuration)\obj\$(TargetName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -96,11 +99,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp23</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -110,13 +117,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp23</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -124,9 +133,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp23</LanguageStandard>
+      <AdditionalOptions>/Zc:preprocessor %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalOptions>/utf-8 /Zc:preprocessor %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -134,6 +143,9 @@
       <AdditionalDependencies>ntdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -143,65 +155,58 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp23</LanguageStandard>
+      <AdditionalOptions>/Zc:preprocessor %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalOptions>/utf-8 /Zc:preprocessor %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>ntdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ext\portable_executable\data_directory.cpp" />
-    <ClCompile Include="ext\portable_executable\dos_header.cpp" />
-    <ClCompile Include="ext\portable_executable\export_directory.cpp" />
-    <ClCompile Include="ext\portable_executable\file.cpp" />
-    <ClCompile Include="ext\portable_executable\image.cpp" />
-    <ClCompile Include="ext\portable_executable\imports_directory.cpp" />
-    <ClCompile Include="ext\portable_executable\nt_headers.cpp" />
-    <ClCompile Include="ext\portable_executable\relocations_directory.cpp" />
-    <ClCompile Include="ext\portable_executable\section_header.cpp" />
-    <ClCompile Include="src\commands\commands.cpp" />
+    <ClCompile Include="src\cmd\alias.cpp" />
+    <ClCompile Include="src\cmd\cmd.cpp" />
+    <ClCompile Include="src\hook\arena.cpp" />
     <ClCompile Include="src\hook\hook.cpp" />
-    <ClCompile Include="src\hook\hook_disassembly.cpp" />
-    <ClCompile Include="src\hook\kernel_detour_holder.cpp" />
     <ClCompile Include="src\hypercall\hypercall.cpp" />
-    <ClCompile Include="src\logs\logs.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\nt\kernel_module.cpp" />
+    <ClCompile Include="src\nt\priv.cpp" />
+    <ClCompile Include="src\nt\query.cpp" />
     <ClCompile Include="src\script\script.cpp" />
-    <ClCompile Include="src\system\system.cpp" />
+    <ClCompile Include="src\sys\dump.cpp" />
+    <ClCompile Include="src\sys\kernel.cpp" />
+    <ClCompile Include="src\util\file.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="src\hypercall\vmexit.asm" />
+    <ClInclude Include="src\arch\arch.hpp" />
+    <ClInclude Include="src\cmd\alias.hpp" />
+    <ClInclude Include="src\cmd\cmd.hpp" />
+    <ClInclude Include="src\hook\arena.hpp" />
+    <ClInclude Include="src\hook\hook.hpp" />
+    <ClInclude Include="src\hook\encode.hpp" />
+    <ClInclude Include="src\hook\orig_bytes.hpp" />
+    <ClInclude Include="src\hook\shadow.hpp" />
+    <ClInclude Include="src\hypercall\hypercall.hpp" />
+    <ClInclude Include="src\nt\alloc.hpp" />
+    <ClInclude Include="src\nt\kernel_module.hpp" />
+    <ClInclude Include="src\nt\priv.hpp" />
+    <ClInclude Include="src\nt\query.hpp" />
+    <ClInclude Include="src\script\script.hpp" />
+    <ClInclude Include="src\sys\dump.hpp" />
+    <ClInclude Include="src\sys\kernel.hpp" />
+    <ClInclude Include="src\sys\sys.hpp" />
+    <ClInclude Include="src\util\file.hpp" />
+    <ClInclude Include="src\util\log.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ext\portable_executable\data_directory.hpp" />
-    <ClInclude Include="ext\portable_executable\dos_header.hpp" />
-    <ClInclude Include="ext\portable_executable\export_directory.hpp" />
-    <ClInclude Include="ext\portable_executable\file.hpp" />
-    <ClInclude Include="ext\portable_executable\file_header.hpp" />
-    <ClInclude Include="ext\portable_executable\image.hpp" />
-    <ClInclude Include="ext\portable_executable\imports_directory.hpp" />
-    <ClInclude Include="ext\portable_executable\nt_headers.hpp" />
-    <ClInclude Include="ext\portable_executable\optional_header.hpp" />
-    <ClInclude Include="ext\portable_executable\relocations_directory.hpp" />
-    <ClInclude Include="ext\portable_executable\section_header.hpp" />
-    <ClInclude Include="src\assembler\assembler.h" />
-    <ClInclude Include="src\commands\commands.h" />
-    <ClInclude Include="src\commands\kernel_hook\kernel_hook.h" />
-    <ClInclude Include="src\hook\hook.h" />
-    <ClInclude Include="src\hook\hook_disassembly.h" />
-    <ClInclude Include="src\hook\kernel_detour_holder.h" />
-    <ClInclude Include="src\hypercall\hypercall.h" />
-    <ClInclude Include="src\logs\logs.h" />
-    <ClInclude Include="src\script\script.h" />
-    <ClInclude Include="src\system\system.h" />
-    <ClInclude Include="src\system\system_def.h" />
+    <MASM Include="src\hypercall\hc_stub.asm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

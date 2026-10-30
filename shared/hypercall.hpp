@@ -1,0 +1,39 @@
+#pragma once
+#include <cstdint>
+
+namespace hc
+{
+	inline constexpr std::uint64_t allowed_key = 0x8A3B55C7927;
+
+	enum class type : std::uint64_t
+	{
+		test,
+		curr_cr3,
+		phys_mem_op,
+		virt_mem_op,
+		translate_va,
+		hook_add,
+		hook_remove,
+		hide_page,
+		rem_heap_size,
+		add_log,
+		flush_logs
+	};
+
+	union info
+	{
+		std::uint64_t val;
+
+		struct
+		{
+			type type : 16;
+			std::uint64_t key : 48;
+		};
+	};
+
+	struct params
+	{
+		info info;
+		std::uint64_t args[5];
+	};
+}

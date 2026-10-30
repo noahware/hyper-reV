@@ -1,77 +1,41 @@
-#include "violation.h"
-#include "../cr3/cr3.h"
-#include "../hook/hook_entry.h"
+#include "violation.hpp"
+#include "../cr3/cr3.hpp"
+#include "../hook/info.hpp"
+#include "../hook/page_split.hpp"
+#include "../../arch/current.hpp"
 
-#include "../../arch/arch.h"
-
-std::uint8_t slat::violation::process()
+bool slat::violation::handle() noexcept
 {
-#ifdef _INTELMACHINE
-	const auto qualification = arch::get_exit_qualification();
+	const auto violation = arch::slat_violation();
 
-	if (!qualification.caused_by_translation)
+	if (!violation.caused_by_translation)
+		return false;
+
+	if ((violation.access & page_perm::execute) == page_perm::none)
+		return false;
+
+	const auto page_gpa = violation.gpa & ~page_mask;
+
+	if (arch::slat_cr3().flags != cr3::hyperv.flags)
 	{
-		return 0;
+		hook::handle_page_split(page_gpa);
+
+		arch::set_slat_cr3(cr3::hyperv);
+		arch::flush_slat_cache();
+		return true;
 	}
 
-	const std::uint64_t physical_address = arch::get_guest_physical_address();
+	cstd::shared_lock guard(hook::mtx);
 
-	const hook::entry_t* const hook_entry = hook::entry_t::find(physical_address >> 12);
-
-	if (hook_entry == nullptr)
+	for (const auto& hook : hook::list)
 	{
-		if (qualification.execute_access && get_cr3().flags != hyperv_cr3().flags)
-		{
-			set_cr3(hyperv_cr3());
+		if ((hook.gpa & ~page_mask) != page_gpa)
+			continue;
 
-			return 1;
-		}
-
-		return 0;
+		arch::set_slat_cr3(cr3::shadow);
+		arch::flush_slat_cache();
+		return true;
 	}
 
-	if (qualification.execute_access)
-	{
-		set_cr3(hyperv_cr3());
-
-		// page is now --x, and with shadow pfn	
-	}
-	else
-	{
-		set_cr3(hook_cr3());
-
-		// page is now rw-, and with original pfn
-	}
-#else
-	const vmcb_t* const vmcb = arch::get_vmcb();
-
-	const npf_exit_info_1 npf_info = { .flags = vmcb->control.first_exit_info };
-
-	if (npf_info.present == 0 || npf_info.execute_access == 0)
-	{
-		return 0;
-	}
-
-	const std::uint64_t physical_address = vmcb->control.second_exit_info;
-
-	const hook::entry_t* const hook_entry = hook::entry_t::find(physical_address >> 12);
-
-	const cr3 hook_slat_cr3 = hook_cr3();
-
-	if (hook_entry == nullptr)
-	{
-		if (vmcb->control.nested_cr3.flags == hook_slat_cr3.flags)
-		{
-			set_cr3(hyperv_cr3());
-
-			return 1;
-		}
-
-		return 0;
-	}
-
-	set_cr3(hook_slat_cr3);
-#endif
-
-	return 1;
+	return false;
 }

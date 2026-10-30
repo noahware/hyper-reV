@@ -1,60 +1,54 @@
-#include "logs.h"
-#include "../memory_manager/heap_manager.h"
-#include "../memory_manager/memory_manager.h"
-#include "../crt/crt.h"
+#include "logs.hpp"
+#include "../mem/guest.hpp"
+
+#include <mutex.hpp>
+#include <vector.hpp>
 
 namespace
 {
-	crt::mutex_t log_mutex = { };
+	cstd::vector<logs::entry> ring;
+	cstd::mutex mtx;
 }
 
-void logs::set_up()
+bool logs::init() noexcept
 {
-	constexpr std::uint64_t stored_logs_pages = 4; // must be at least 1
-	constexpr std::uint64_t stored_logs_size = stored_logs_pages * 0x1000;
+	ring.reserve(ring_capacity);
 
-	// will be done in initialization, so will be contiguous
-	stored_logs = static_cast<trap_frame_log_t*>(heap_manager::allocate_page());
-
-	// reserve those other pages (will be contiguous)
-	for (std::uint64_t i = 0; i < stored_logs_pages - 1; i++)
-	{
-		heap_manager::allocate_page();
-	}
-
-	stored_log_max = stored_logs_size / sizeof(trap_frame_log_t);
+	return ring.capacity() == ring_capacity;
 }
 
-void logs::add_log(const trap_frame_log_t& trap_frame)
+void logs::add(const guest_regs& regs) noexcept
 {
-	log_mutex.lock();
+	const auto guest_cr3 = arch::guest_cr3();
 
-	const std::uint16_t index = stored_log_index;
+	entry e{};
+	e.regs = regs;
+	e.rip = arch::rip();
+	e.cr3 = guest_cr3.flags;
 
-	if (index < stored_log_max)
-	{
-		stored_logs[index] = trap_frame;
+	mem::guest::read_virt(guest_cr3, regs.rsp,
+	                     e.stack_data, sizeof(e.stack_data));
 
-		stored_log_index++;
-	}
+	cstd::lock_guard lock{ mtx };
 
-	log_mutex.release();
+	if (ring.size() >= ring_capacity)
+		return;
+
+	ring.push_back(e);
 }
 
-std::uint8_t logs::flush(const cr3 slat_cr3, const std::uint64_t guest_virtual_buffer, const cr3 guest_cr3, const std::uint16_t count)
+std::size_t logs::flush(const cr3 guest_cr3, const std::uintptr_t guest_va,
+                        const std::uint16_t count) noexcept
 {
-	log_mutex.lock();
+	cstd::lock_guard lock{ mtx };
 
-	const std::uint16_t actual_count = crt::min(count, stored_log_index);
+	const auto n = count < ring.size() ? count : ring.size();
+	if (n == 0)
+		return 0;
 
-	const std::uint16_t copy_start_index = stored_log_index - actual_count;
-	const std::uint64_t write_size = sizeof(trap_frame_log_t) * actual_count;
+	if (!mem::guest::write_virt(guest_cr3, guest_va, ring.data(), n * sizeof(entry)))
+		return 0;
 
-	const std::uint64_t bytes_written = memory_manager::operate_on_guest_virtual_memory(slat_cr3, &stored_logs[copy_start_index], guest_virtual_buffer, guest_cr3, write_size, memory_operation_t::write_operation);
-
-	stored_log_index = copy_start_index;
-
-	log_mutex.release();
-
-	return bytes_written == write_size;
+	ring.clear();
+	return n;
 }
