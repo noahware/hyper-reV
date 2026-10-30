@@ -2,8 +2,8 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <EDK_PATH>$(SolutionDir)vendor\edk2\src</EDK_PATH>
-    <EDK_BUILD_PATH>$(SolutionDir)vendor\edk2\build</EDK_BUILD_PATH>
+    <EDK_PATH>$(SolutionDir)vendor\visual-uefi\edk2</EDK_PATH>
+    <EDK_BUILD_PATH>$(SolutionDir)vendor\visual-uefi\EDK-II</EDK_BUILD_PATH>
     <CSTD_PATH>$(SolutionDir)vendor\cstd</CSTD_PATH>
     <PE_PATH>$(SolutionDir)vendor\pe</PE_PATH>
   </PropertyGroup>

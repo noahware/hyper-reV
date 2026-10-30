@@ -1,16 +1,15 @@
-[submodule "vendor/edk2/src"]
-	path = vendor/edk2/src
-	url = https://github.com/ionescu007/edk2
-[submodule "vendor/openssl"]
-	path = vendor/openssl
-	url = https://github.com/openssl/openssl
-	branch = OpenSSL_1_1_0-stable
 [submodule "vendor/cstd"]
 	path = vendor/cstd
 	url = https://github.com/noahware/cstd
 [submodule "vendor/pe"]
 	path = vendor/pe
 	url = https://github.com/noahware/pe
+[submodule "vendor/visual-uefi"]
+	path = vendor/visual-uefi
+	url = https://github.com/ionescu007/VisualUefi
+[submodule "vendor/ia32-doc"]
+	path = vendor/ia32-doc
+	url = https://github.com/ia32-doc/ia32-doc
 [submodule "vendor/apic"]
 	path = vendor/apic
 	url = https://github.com/noahware/apic

@@ -56,7 +56,7 @@
   <ImportGroup Label="ExtensionTargets" />
   <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)shared;$(SolutionDir)vendor\ia32-doc\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)shared;$(SolutionDir)vendor;$(SolutionDir)vendor\ia32-doc\out;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)\build\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\build\$(Configuration)\obj\$(TargetName)\</IntDir>
   </PropertyGroup>

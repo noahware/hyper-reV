@@ -5,7 +5,7 @@
 #include "hyperv_attachment/hva.hpp"
 
 extern "C" {
-#include "../../vendor/edk2/build/BaseLib/vshacks.h"
+#include <visual-uefi/EDK-II/BaseLib/vshacks.h>
 #include <Uefi.h>
 #include <Library/UefiLib.h>
 #include <Library/UefiBootServicesTableLib.h>

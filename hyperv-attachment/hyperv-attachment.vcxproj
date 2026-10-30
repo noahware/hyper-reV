@@ -31,7 +31,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)\build\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\build\$(Configuration)\obj\$(TargetName)\</IntDir>
-    <IncludePath>$(SolutionDir)shared;$(SolutionDir)vendor\cstd\src;$(SolutionDir)vendor\ia32-doc\;$(SolutionDir)vendor\apic\src;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)shared;$(SolutionDir)vendor;$(SolutionDir)vendor\cstd\src;$(SolutionDir)vendor\ia32-doc\out;$(SolutionDir)vendor\apic\src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
