@@ -349,3 +349,5 @@ mylostchristmas - found that the prior method of allocating SLAT protected SLAB 
 [Alex Ionescu](https://github.com/ionescu007) - for his VisualUEFI project.
 
 [ia32-doc](https://github.com/ia32-doc/) - for ia32-doc.
+
+after git clone do "git submodule update --init --recursive"
