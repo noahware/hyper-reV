@@ -182,6 +182,7 @@
     <ClCompile Include="src\script\script.cpp" />
     <ClCompile Include="src\sys\dump.cpp" />
     <ClCompile Include="src\sys\kernel.cpp" />
+    <ClCompile Include="src\sys\process.cpp" />
     <ClCompile Include="src\util\file.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -201,6 +202,7 @@
     <ClInclude Include="src\script\script.hpp" />
     <ClInclude Include="src\sys\dump.hpp" />
     <ClInclude Include="src\sys\kernel.hpp" />
+    <ClInclude Include="src\sys\process.hpp" />
     <ClInclude Include="src\sys\sys.hpp" />
     <ClInclude Include="src\util\file.hpp" />
     <ClInclude Include="src\util\log.hpp" />
