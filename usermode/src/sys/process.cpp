@@ -34,6 +34,7 @@ namespace sys::process
             std::uint32_t cr3 = 0x028;
             std::uint32_t pid = 0x1d0;
             std::uint32_t flink = 0x1d8;
+            std::uint32_t peb = 0x3f8;
         };
 
         context_t init_context() noexcept
@@ -77,31 +78,64 @@ namespace sys::process
             static const context_t c = init_context();
             return c;
         }
+
+        std::uintptr_t find_eprocess( std::uint32_t pid ) noexcept
+        {
+            const auto& c = ctx();
+            if ( !c.first_eprocess )
+                return 0;
+
+            std::uintptr_t current = c.first_eprocess;
+
+            for ( int i = 0; i < 1024; ++i )
+            {
+                if ( kern::read<std::uint64_t>( current + c.pid ) == pid )
+                    return current;
+
+                const auto flink = kern::read<std::uintptr_t>( current + c.flink );
+                if ( !flink )
+                    return 0;
+
+                current = flink - c.flink;
+
+                if ( current == c.first_eprocess )
+                    return 0;
+            }
+
+            return 0;
+        }
     }
 
     std::uint64_t cr3( const std::uint32_t pid ) noexcept
     {
         const auto& c = ctx();
-        if ( !c.first_eprocess )
+        const auto e = find_eprocess( pid );
+        if ( !e )
             return 0;
 
-        std::uintptr_t current = c.first_eprocess;
+        return  kern::read<std::uintptr_t>( e + c.cr3 );
+    }
 
-        for ( int i = 0; i < 1024; ++i )
-        {
-            if ( kern::read<std::uint64_t>( current + c.pid ) == pid )
-                return kern::read<std::uint64_t>( current + c.cr3 );
+    std::uintptr_t base( const std::uint32_t pid ) noexcept
+    {
+        const auto& c = ctx();
+        const auto  e = find_eprocess( pid );
+        if ( !e )
+            return 0;
 
-            const auto flink = kern::read<std::uintptr_t>( current + c.flink );
-            if ( !flink )
-                break;
+        const auto peb = kern::read<std::uintptr_t>( e + c.peb );
+        if ( !peb )
+            return 0;
 
-            current = flink - c.flink;
+        const auto target_cr3 = kern::read<std::uint64_t>( e + c.cr3 );
+        if ( !target_cr3 )
+            return 0;
 
-            if ( current == c.first_eprocess )
-                break;
-        }
+        std::uintptr_t image_base = 0;
+        if ( !hc::virt_copy(target_cr3, peb + 0x10, hc::curr_cr3(), 
+            reinterpret_cast< std::uint64_t >( &image_base ), sizeof( image_base ) ) )
+            return 0;
 
-        return 0;
+        return image_base;
     }
 }

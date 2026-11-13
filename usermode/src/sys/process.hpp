@@ -5,4 +5,5 @@
 namespace sys::process
 {
 	std::uint64_t cr3( std::uint32_t pid ) noexcept;
+	std::uint64_t base( std::uint32_t pid ) noexcept;
 }
