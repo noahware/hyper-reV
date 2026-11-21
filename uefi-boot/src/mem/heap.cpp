@@ -63,6 +63,7 @@ phys_addr mem::heap::alloc_pages(const std::size_t count) noexcept
 	curr_heap += count * page_size;
 
 	ASSERT(inside_heap(curr_heap));
+	cstd::crt::memset(reinterpret_cast<void*>(addr), 0, count * page_size);
 
 	return addr;
 }

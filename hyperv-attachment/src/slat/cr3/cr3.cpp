@@ -14,6 +14,8 @@ void slat::cr3::init_shadow() noexcept
 		hyperv.address_of_page_directory << page_shift);
 
 	auto* dest_pml4 = static_cast<arch::slat_pml4e*>(mem::page::alloc());
+	if (!dest_pml4)
+		return;
 
 	deep_copy(src_pml4, dest_pml4);
 

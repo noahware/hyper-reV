@@ -52,6 +52,11 @@ namespace
 			const auto* src_child = mem::map_phys<const Child*>(
 				src_ent.page_frame_number << page_shift);
 			auto* dest_child = alloc_slat_page<Child>();
+			if (!dest_child)
+			{
+				dest_ent.flags = 0;
+				continue;
+			}
 
 			dest_ent.page_frame_number = mem::pfn_for_map(dest_child);
 

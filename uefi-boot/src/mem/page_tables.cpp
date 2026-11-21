@@ -5,33 +5,44 @@
 namespace
 {
 	::cr3 identity_cr3 = { };
+
+	constexpr std::size_t pde_size = 2ULL * 1024 * 1024;
+	constexpr std::size_t identity_pd_count = 256;
 }
 
 void mem::pt::init()
 {
 	const phys_addr pml4_base = heap::alloc_pages(1);
 	const phys_addr pdpt_base = heap::alloc_pages(1);
+	const phys_addr pd_base = heap::alloc_pages(identity_pd_count);
 
 	auto* pml4 = reinterpret_cast<pml4e_64*>(pml4_base);
-	auto* pdpt = reinterpret_cast<pdpte_1gb_64*>(pdpt_base);
+	auto* pdpt = reinterpret_cast<pdpte_64*>(pdpt_base);
+	auto* pds = reinterpret_cast<pde_64*>(pd_base);
 
 	cstd::crt::memset(pml4, 0, page_size);
 	cstd::crt::memset(pdpt, 0, page_size);
+	cstd::crt::memset(pds, 0, identity_pd_count * page_size);
 
-	pml4e_64& pml4e = pml4[0];
-
-	pml4e.page_frame_number = pdpt_base >> page_shift;
-	pml4e.present = true;
-	pml4e.write = true;
+	pml4[0].page_frame_number = pdpt_base >> page_shift;
+	pml4[0].present = true;
+	pml4[0].write = true;
 
 	for (std::size_t i = 0; i < pte_count; i++)
 	{
-		pdpte_1gb_64& pdpte = pdpt[i];
+		pdpt[i].page_frame_number = (pd_base + i * page_size) >> page_shift;
+		pdpt[i].present = true;
+		pdpt[i].write = true;
 
-		pdpte.page_frame_number = i;
-		pdpte.present = true;
-		pdpte.write = true;
-		pdpte.large_page = true;
+		auto* pd = reinterpret_cast<pde_64*>(pd_base + i * page_size);
+		for (std::size_t j = 0; j < pte_count; j++)
+		{
+			const std::size_t index = i * pte_count + j;
+			pd[j].page_frame_number = (index * pde_size) >> page_shift;
+			pd[j].present = true;
+			pd[j].write = true;
+			pd[j].large_page = true;
+		}
 	}
 
 	::identity_cr3.flags = 0;
